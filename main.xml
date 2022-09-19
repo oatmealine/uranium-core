@@ -437,14 +437,17 @@
   Quad = createGenericFunc('Quad')
   ActorProxy = createGenericFunc('ActorProxy')
   Polygon = createGenericFunc('Polygon')
+  ActorFrameTexture = createGenericFunc('ActorFrameTexture')
 
   function Sprite(file)
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
-    if not file then error('uranium: cannot create a Sprite without a file', 2) end
+    --if not file then error('uranium: cannot create a Sprite without a file', 2) end
     local actor = createProxyActor('Sprite')
+    local type = nil
+    if not file then type = 'Sprite' end
     table.insert(actorQueue, {
-      type = nil,
-      file = '../src/' .. oat._requirePath .. file,
+      type = type,
+      file = file and '../src/' .. oat._requirePath .. file,
       init = function(a)
         actor.__lock(a)
       end

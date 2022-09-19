@@ -15,7 +15,7 @@ function ActorProxy() end
 ---@return Polygon
 --- Defines a Polygon actor.
 function Polygon() end
----@param file string
+---@param file string | nil
 ---@return Sprite
 --- Defines a Sprite actor.
 function Sprite(file) end
@@ -32,6 +32,9 @@ function BitmapText(font, text) end
 ---@return ActorSound
 --- Defines an ActorSound actor.
 function ActorSound(file) end
+---@return ActorFrameTexture
+--- Defines an ActorFrameTexture actor.
+function ActorFrameTexture() end
 
 ---@param actor Actor
 --- Resets an actor to its initial state
@@ -65,6 +68,12 @@ sw = 0
 ---@type number
 --- The screen height. Equal to `SCREEN_HEIGHT`.
 sh = 0
+---@type number
+--- The display width.
+dw = 0
+---@type number
+--- The display height.
+dh = 0
 
 --- The Uranium Template table! Mostly callback-related stuff goes here.
 uranium = {}
@@ -81,5 +90,4 @@ uranium.update = function() end
 function uranium:call(event, ...) end
 
 --- Equivalent to a modfile-sandboxed `_G`, similar to Mirin's `xero`. You shouldn't need this; and if you do, *what are you doing?*
----@type table<any, any>
-oat = {}
+oat = _G
