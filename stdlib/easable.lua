@@ -1,3 +1,5 @@
+require('stdlib.util')
+
 ---@class easable
 ---@field public a number @the eased value
 ---@field public toa number @the target, uneased value

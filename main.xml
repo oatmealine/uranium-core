@@ -140,6 +140,13 @@
     self:hidden(1)
   end
 
+  local hasExited = false
+  local function exit()
+    if hasExited then return end
+    hasExited = true
+    uranium:call('exit')
+  end
+
   local actorsInitialized = false -- if true, no new actors can be created
 
   local luaobj
@@ -212,6 +219,10 @@
     local errored = false
     local firstrun = true
     self:addcommand('Update', function()
+      if not P1 and not P2 then -- sora exit hack
+        exit()
+      end
+
       if errored then
         return 0
       end
@@ -226,6 +237,7 @@
         firstrun = false
         dt = 0
         self:GetChildren()[2]:hidden(1)
+        uranium:call('ready')
       end
 
       for _, q in ipairs(globalQueue) do
@@ -462,6 +474,7 @@
 
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
+    self:addcommand('Off', exit)
     self:queuecommand('Ready')
   else
     Trace('got an error loading main.lua!')
