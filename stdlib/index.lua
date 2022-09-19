@@ -1,4 +1,5 @@
 require('input')
+require('scheduler')
 bitop = require('bitop') -- TODO: tons of this is commented out because of '...'. FIX. IT.
 require('rng')
 require('easable')
