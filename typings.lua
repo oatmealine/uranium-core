@@ -5,6 +5,12 @@
 ---@alias float number
 ---@alias Quad Actor
 ---@alias void nil
+---@type GameState
+GAMESTATE = {}
+---@type PrefsManager
+PREFSMAN = {}
+---@type ScreenManager
+SCREENMAN = {}
 
 ---@return Quad
 --- Defines a Quad actor.
