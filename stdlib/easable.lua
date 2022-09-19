@@ -1,7 +1,6 @@
 ---@class easable
 ---@field public a number @the eased value
 ---@field public toa number @the target, uneased value
----@field protected onUpdateFuncs fun():nil[]
 local eas = {}
 
 ---@param new number @New value to ease to
@@ -21,12 +20,6 @@ end
 ---@return void
 function eas:add(new)
   self.toa = self.toa + new
-end
-
----@param func fun(a: number):void @Adds a callback function that will run each time the eased value changes
----@return void
-function eas:onUpdate(func)
-  table.insert(self.onUpdateFuncs, func)
 end
 
 local easmeta = {}
@@ -61,9 +54,6 @@ end
 
 function easmeta:__call(dt)
   self.a = mix(self.a, self.toa, dt)
-  for _, callback in ipairs(self.onUpdateFuncs) do
-    callback(self.a)
-  end
 end
 function easmeta:__tostring()
   return tostring(self.a)
@@ -76,5 +66,5 @@ end
 ---@return easable
 function easable(default)
   default = default or 0
-  return setmetatable({a = default, toa = default, onUpdateFuncs = {}}, easmeta)
+  return setmetatable({a = default, toa = default}, easmeta)
 end
