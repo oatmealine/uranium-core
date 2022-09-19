@@ -26,6 +26,7 @@ Installation follows the same steps as [the manual installation](https://git.oat
 During distribution, there are a couple of files that should be left out:
 
 - This very `README.md` - keeping it will be a little confusing, I think!
+- The `docs/` directory - it's here solely for the logo, and is already included in the template itself.
 
 ## Development
 
