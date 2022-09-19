@@ -64,7 +64,7 @@ end
 
 ---@param default number
 ---@return easable
-function easable(default)
+return function(default)
   default = default or 0
   return setmetatable({a = default, toa = default}, easmeta)
 end

@@ -2,6 +2,8 @@
 -- Lua implementation by Jill "oatmealine" Monoids
 -- Licensed under CC-BY-SA
 
+local bitop = require('stdlib.bitop')
+
 local RAND_MAX = 4294967295
 
 ---@param x int

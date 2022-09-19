@@ -1,3 +1,5 @@
+local self = {}
+
 local scheduled = {
 }
 local scheduledTicks = {
@@ -11,19 +13,19 @@ local function getHighestKey(t)
   return s
 end
 
-function schedule(when, func)
+function self:schedule(when, func)
   local index = getHighestKey(scheduled) + 1
   scheduled[index] = {when, func}
   return index
 end
 
-function scheduleInTicks(when, func)
+function self:scheduleInTicks(when, func)
   local index = getHighestKey(scheduledTicks) + 1
   scheduledTicks[index] = {when, func}
   return index
 end
 
-function unschedule(i)
+function self:unschedule(i)
   if not i then
     print('warning: trying to unschedule a non-existent event')
     return
@@ -31,7 +33,7 @@ function unschedule(i)
   scheduled[i] = nil
 end
 
-function unscheduleInTicks(i)
+function self:unscheduleInTicks(i)
   if not i then
     print('warning: trying to unschedule a non-existent event')
   end
@@ -55,3 +57,5 @@ function uranium.update(dt)
     end
   end
 end
+
+return self

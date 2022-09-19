@@ -1,3 +1,5 @@
+-- TODO: tons of this is commented out because of '...'. FIX. IT.
+
 local M = {_TYPE='module', _NAME='bitop.funcs', _VERSION='1.0-0'}
 
 local floor = math.floor

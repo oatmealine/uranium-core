@@ -1,6 +1,7 @@
 <Layer Type="ActorFrame" InitCommand="%function(self)
   _G.oat = {}
   oat._main = self
+  oat.dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
   setmetatable(oat, {
     -- if something isn't found in the table, fall back to a global lookup
@@ -12,6 +13,70 @@
       return f
     end
   })
+
+  -- make require work
+  -- stolen from mirin template
+  -- https://github.com/XeroOl/notitg-mirin/blob/0fbff2ee93d905feeb58c4aac4fe7f5f9ebc9647/template/std.lua#L17
+  oat.package = {
+    -- uranium template loader path
+    path = 'src/?.lua;src/?/init.lua;template/?.lua',
+    preload = {},
+    loaded = {},
+    loaders = {
+      function(modname)
+        local preload = oat.package.preload[modname]
+        return preload or 'no field oat.package.preload[\''..modname..'\']'
+      end,
+      function(modname)
+        local errors = {}
+        -- get the filename
+        local filename = string.gsub(modname, '%.', '/')
+        for path in (string.gfind or string.gmatch)(oat.package.path, '[^;]+') do
+          -- get the file path
+          local filepath = oat.dir .. string.gsub(path, '%?', filename)
+          -- check if file exists
+          if not GAMESTATE:GetFileStructure(filepath) then
+            table.insert(errors, 'no file \''..filepath..'\'')
+          else
+            local loader, err = loadfile(filepath)
+            -- check if file loads properly
+            if err then
+              error(err, 3)
+            elseif loader then
+              return oat(loader)
+            end
+          end
+        end
+        return table.concat(errors, '\n')
+      end,
+    },
+  }
+
+  function oat.require(modname)
+    local loaded = oat.package.loaded
+    if not loaded[modname] then
+      local errors = {'module \''..modname..'\' not found:'}
+      local chunk
+      for _, loader in ipairs(oat.package.loaders) do
+        local result = loader(modname)
+        if type(result) == 'string' then
+          table.insert(errors, result)
+        elseif type(result) == 'function' then
+          chunk = result
+          break
+        end
+      end
+      if not chunk then
+        error(table.concat(errors, '\n'), 2)
+      end
+      loaded[modname] = chunk()
+      if loaded[modname] == nil then
+        loaded[modname] = true
+      end
+    end
+    return loaded[modname]
+  end
+
   oat()
 
   local function copy(src)
@@ -186,115 +251,6 @@
 
   GAMESTATE:ApplyModifiers('clearall')
 
-  local function formatError(file, e)
-    local _, _, err = string.find(e, 'error loading package `[^`\']+\' %((.+)%)')
-    return (file and err) and ('error loading \'' .. file .. '\':\n' .. err) or e
-  end
-
-  local songName = GAMESTATE:GetCurrentSong():GetSongDir()
-  local additionalSongFolders = PREFSMAN:GetPreference('AdditionalSongFolders')
-  local additionalFolders = PREFSMAN:GetPreference('AdditionalFolders')
-  local function attemptload(f, filename) -- not to be confused with tryload
-    local err = ''
-    local lasterr = ''
-    local func
-
-    local s = '.' .. songName .. f
-
-    func, lasterr = loadfile(s)
-    if func then return func end
-    if not string.find(lasterr, '\' from path `') then return nil, formatError(filename, lasterr), nil end
-    err = err .. s .. '\n'
-
-    s = f
-
-    func, lasterr = loadfile(s)
-    if func then return func end
-    if not string.find(lasterr, '\' from path `') then return nil, formatError(filename, lasterr), nil end
-    err = err .. s .. '\n'
-
-    -- cut off 'Songs/' from the path
-    local _,index = string.find(songName,'Songs/')
-    local songLoc = string.sub(songName,index)
-
-    -- for every songfolder in the additionalsongfolders
-    if additionalSongFolders and additionalSongFolders ~= '' then
-      for songFolder in string.gfind(additionalSongFolders,'[^,]+') do
-        s = songFolder .. songLoc .. f
-
-        func, lasterr = loadfile(s)
-        if func then return func end
-        err = err .. s .. '\n'
-      end
-    end
-
-    if additionalFolders and additionalFolders ~= '' then
-      for folder in string.gfind(additionalFolders,'[^,]+') do
-        s = folder .. songName .. f
-
-        func, lasterr = loadfile(s)
-        if func then return func end
-        err = err .. s .. '\n'
-      end
-    end
-
-    return nil, lasterr, string.sub(err, 0, -2)
-  end
-
-  oat._loadPath = ''
-
-  function tryload(f)
-    local func, err, trace = attemptload(oat._loadPath .. f, f)
-    if not func then
-      if trace then
-        backToSongWheel('finding \'' .. f .. '\' failed, check log for more details')
-        error('uranium: finding \'' .. f .. '\' failed! tried these paths: ' .. '\n' .. trace, 2)
-        Trace(trace)
-      else
-        error(err, 2)
-        Trace('loading \'' .. f .. '\' failed!' .. '\n' .. err)
-      end
-    else
-      return oat(func)
-    end
-  end
-
-  local function getFolderStructure(path)
-    local folders = {}
-    for folder in string.gfind(path, '[^/]+') do
-      table.insert(folders, folder)
-    end
-    table.remove(folders, #folders)
-    return table.concat(folders, '/')
-  end
-
-  oat._requirePath = ''
-
-  function require(f)
-    -- . -> /
-    f = string.gsub(f, '%.', '/')
-    -- add .lua
-    f = f .. '.lua'
-
-    local oldpath = oat._requirePath
-    local folder = getFolderStructure(f)
-    if folder ~= '' then
-      oat._requirePath = oat._requirePath .. folder .. '/'
-    end
-    local res, c = pcall(tryload, oldpath .. f)
-    if not res then
-      error(c, 2)
-    else
-      local success, s = pcall(c)
-      if success then
-        return s
-      else
-        error('uranium: error loading \'' .. f .. '\':\n' .. s, 2)
-      end
-    end
-    oat._requirePath = oldpath
-  end
-
   -- actors
 
   local actorQueue = {}
@@ -447,7 +403,7 @@
     if not file then type = 'Sprite' end
     table.insert(actorQueue, {
       type = type,
-      file = file and '../src/' .. oat._requirePath .. file,
+      file = file and oat.dir .. file,
       init = function(a)
         actor.__lock(a)
       end
@@ -461,7 +417,7 @@
     local actor = createProxyActor('Model')
     table.insert(actorQueue, {
       type = nil,
-      file = '../src/' .. oat._requirePath .. file,
+      file = file and oat.dir .. file,
       init = function(a)
         actor.__lock(a)
       end
@@ -474,7 +430,7 @@
     local actor = createProxyActor('BitmapText')
     table.insert(actorQueue, {
       type = 'BitmapText',
-      font = font and ('../src/' .. oat._requirePath .. font) or 'common',
+      font = font and (oat.dir .. font) or 'common',
       init = function(a)
         if text then a:settext(text) end
         actor.__lock(a)
@@ -489,7 +445,7 @@
     local actor = createProxyActor('ActorSound')
     table.insert(actorQueue, {
       type = 'ActorSound',
-      file = '../src/' .. oat._requirePath .. file,
+      file = oat.dir .. file,
       init = function(a)
         actor.__lock(a)
       end
@@ -497,29 +453,21 @@
     return actor
   end
 
-  oat._loadPath = 'template/stdlib/'
-  oat.tryload('index')()
-  oat._loadPath = 'src/'
-  lua = oat.tryload('main')
+  local success, result = pcall(function()
+    require('main')
+  end)
 
-  if lua then
-    local success, result = pcall(lua)
-    if success then
-      luaobj = result
+  if success then
+    luaobj = result
 
-      self:addcommand('On', onCommand)
-      self:addcommand('Ready', screen_ready_command)
-      self:queuecommand('Ready')
-    else
-      Trace('got an error loading main.lua!')
-      Trace(result)
-      backToSongWheel('loading .lua file failed, check log for details')
-      error('uranium: loading main.lua file failed:\n' .. result)
-    end
+    self:addcommand('On', onCommand)
+    self:addcommand('Ready', screen_ready_command)
+    self:queuecommand('Ready')
   else
-    Trace('luaobj doesnt exist despite passing checks. thats VERY odd')
-    backToSongWheel('uranium: loading .lua file failed, check log for details')
-    error('loading main.lua file failed: \'lua\' variable doesn\'t exist despite passing checks')
+    Trace('got an error loading main.lua!')
+    Trace(result)
+    backToSongWheel('loading .lua file failed, check log for details')
+    error('uranium: loading main.lua file failed:\n' .. result)
   end
 
   -- NotITG and OpenITG have a long standing bug where the InitCommand on an actor can run twice in certain cases.

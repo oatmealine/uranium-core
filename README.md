@@ -32,4 +32,4 @@ During distribution, there are a couple of files that should be left out:
 
 Everything related to the core functionality - loading actors, callbacks - goes in `template/main.xml`. It's not the most convinient, but I want to eventually move this out to its own Lua file.
 
-Everything related to the standard library should go into `template/stdlib/` - all files there are manually required in `template/stdlib/index.lua`.
+Everything related to the standard library should go into `template/stdlib/` - all files there are required by the user, so be mindful of filenames

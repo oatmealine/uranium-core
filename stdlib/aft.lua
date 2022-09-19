@@ -1,11 +1,13 @@
-function sprite(self)
+local self = {}
+
+function self.sprite(self)
   self:basezoomx(sw / dw)
   self:basezoomy(-sh / dh)
   self:x(scx)
   self:y(scy)
 end
 
-function aft(self)
+function self.aft(self)
   self:SetWidth(dw)
   self:SetHeight(dh)
   self:EnableDepthBuffer(false)
@@ -14,3 +16,5 @@ function aft(self)
   self:EnablePreserveTexture(true)
   self:Create()
 end
+
+return self
