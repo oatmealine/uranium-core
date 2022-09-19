@@ -1,4 +1,4 @@
-#### This is the development-oriented README. If you're looking to learn how to install and use the template, see [MANUAL.MD](/MANUAL.md).
+#### This is the development-oriented README. If you're looking to learn how to install and use the template, see [MANUAL.MD](https://git.oat.zone/oat/uranium-template/src/branch/main/MANUAL.md).
 
 ---
 
@@ -19,7 +19,7 @@ But you probably already knew that; how do you develop this darn thing?
 
 ## Installation
 
-Installation follows the same steps as [the manual installation](/MANUAL.md#installation) - extract as a modfile, run as a modfile.
+Installation follows the same steps as [the manual installation](https://git.oat.zone/oat/uranium-template/src/branch/main/MANUAL.md#installation) - extract as a modfile, run as a modfile.
 
 ## Distribution
 
