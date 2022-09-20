@@ -4,7 +4,7 @@
 
 <br>
 
-<center id="start">
+<center>
   <h2 style="font-size: 42px">
     <img src="docs/uranium.png" height="42px" alt="">
     <b>Uranium Template</b>
