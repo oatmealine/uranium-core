@@ -285,12 +285,28 @@
     return currentActor ~= nil
   end
 
+  function oat._actor.hasShader()
+    return oat._actor.cond() and (currentActor.frag ~= nil or currentActor.vert ~= nil)
+  end
+
+  function oat._actor.noShader()
+    return oat._actor.cond() and not oat._actor.hasShader()
+  end
+
   function oat._actor.type()
     return currentActor.type
   end
 
   function oat._actor.file()
     return currentActor.file
+  end
+
+  function oat._actor.frag()
+    return currentActor.frag or 'nop.frag'
+  end
+
+  function oat._actor.vert()
+    return currentActor.vert or 'nop.vert'
   end
 
   function oat._actor.font()
@@ -418,6 +434,43 @@
       file = file and oat.dir .. file,
       init = function(a)
         actor.__lock(a)
+      end
+    })
+    return actor
+  end
+
+  local function isShaderCode(str)
+    return string.find(str or '', '\n')
+  end
+
+  function Shader(frag, vert)
+    if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+    local actor = createProxyActor('RageShaderProgram')
+
+    local fragFile = frag
+    local vertFile = vert
+
+    local isFragShaderCode = isShaderCode(frag)
+    local isVertShaderCode = isShaderCode(vert)
+
+    if isFragShaderCode then fragFile = nil end
+    if isVertShaderCode then vertFile = nil end
+
+    if (frag and vert) and ((isFragShaderCode and not isVertShaderCode) or (not isFragShaderCode and isVertShaderCode)) then
+      error('uranium: cannot create a shader with 1 shader file and 1 shader code block', 2)
+    end
+
+    table.insert(actorQueue, {
+      type = 'Sprite',
+      frag = fragFile and ('../' .. fragFile) or 'nop.frag',
+      vert = vertFile and ('../' .. vertFile) or 'nop.vert',
+      init = function(a)
+        actor.__lock(a:GetShader())
+
+        -- shader code stuff
+        if isFragShaderCode or isVertShaderCode then
+          a:GetShader():compile(vert or '', frag or '')
+        end
       end
     })
     return actor

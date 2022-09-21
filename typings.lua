@@ -41,6 +41,11 @@ function ActorSound(file) end
 ---@return ActorFrameTexture
 --- Defines an ActorFrameTexture actor.
 function ActorFrameTexture() end
+---@param frag string | nil
+---@param vert string | nil
+---@return RageShaderProgram
+--- Defines a shader. `frag` and `vert` can either be filenames or shader code.
+function Shader(frag, vert) end
 
 ---@param actor Actor
 --- Resets an actor to its initial state
