@@ -1,5 +1,3 @@
--- TODO: tons of this is commented out because of '...'. FIX. IT.
-
 local M = {_TYPE='module', _NAME='bitop.funcs', _VERSION='1.0-0'}
 
 local floor = math.floor
@@ -155,7 +153,6 @@ end
 M.bit32.bnot = bit32_bnot
 
 -- something here causes a syntax error so im just commenting out since i dont need it anyways
---[[
 local function bit32_bxor(a, b, c, ...)
   local z
   if b then
@@ -163,7 +160,7 @@ local function bit32_bxor(a, b, c, ...)
     b = b % MOD
     z = bxor(a, b)
     if c then
-      z = bit32_bxor(z, c, ...)
+      z = bit32_bxor(unpack({z, c, unpack(arg)}))
     end
     return z
   elseif a then
@@ -181,7 +178,7 @@ local function bit32_band(a, b, c, ...)
     b = b % MOD
     z = ((a+b) - bxor(a,b)) / 2
     if c then
-      z = bit32_band(z, c, ...)
+      z = bit32_band(unpack({z, c, unpack(arg)}))
     end
     return z
   elseif a then
@@ -199,7 +196,7 @@ local function bit32_bor(a, b, c, ...)
     b = b % MOD
     z = MODM - band(MODM - a, MODM - b)
     if c then
-      z = bit32_bor(z, c, ...)
+      z = bit32_bor(unpack({z, c, unpack(arg)}))
     end
     return z
   elseif a then
@@ -211,7 +208,7 @@ end
 M.bit32.bor = bit32_bor
 
 function M.bit32.btest(...)
-  return bit32_band(...) ~= 0
+  return bit32_band(unpack(arg)) ~= 0
 end
 
 function M.bit32.lrotate(x, disp)
@@ -248,18 +245,18 @@ function M.bit32.arshift(x,disp)
 end
 
 function M.bit32.extract(x, field, ...)
-  local width = ... or 1
+  local width = arg[1] or 1
   if field < 0 or field > 31 or width < 0 or field+width > 32 then error 'out of range' end
   x = x % MOD
-  return extract(x, field, ...)
+  return extract(unpack({x, field, unpack(arg)}))
 end
 
 function M.bit32.replace(x, v, field, ...)
-  local width = ... or 1
+  local width = arg[1] or 1
   if field < 0 or field > 31 or width < 0 or field+width > 32 then error 'out of range' end
   x = x % MOD
   v = v % MOD
-  return replace(x, v, field, ...)
+  return replace(unpack({x, v, field, unpack(arg)}))
 end
 
 
@@ -277,7 +274,7 @@ end
 local bit_tobit = M.bit.tobit
 
 function M.bit.tohex(x, ...)
-  return tohex(x % MOD, ...)
+  return tohex(unpack({x % MOD, unpack(arg)}))
 end
 
 function M.bit.bnot(x)
@@ -286,7 +283,7 @@ end
 
 local function bit_bor(a, b, c, ...)
   if c then
-    return bit_bor(bit_bor(a, b), c, ...)
+    return bit_bor(unpack({bit_bor(a, b), c, unpack(arg)}))
   elseif b then
     return bit_tobit(bor(a % MOD, b % MOD))
   else
@@ -297,7 +294,7 @@ M.bit.bor = bit_bor
 
 local function bit_band(a, b, c, ...)
   if c then
-    return bit_band(bit_band(a, b), c, ...)
+    return bit_band(unpack({bit_band(a, b), c, unpack(arg)}))
   elseif b then
     return bit_tobit(band(a % MOD, b % MOD))
   else
@@ -308,7 +305,7 @@ M.bit.band = bit_band
 
 local function bit_bxor(a, b, c, ...)
   if c then
-    return bit_bxor(bit_bxor(a, b), c, ...)
+    return bit_bxor(unpack({bit_bxor(a, b), c, unpack(arg)}))
   elseif b then
     return bit_tobit(bxor(a % MOD, b % MOD))
   else
@@ -340,6 +337,5 @@ end
 function M.bit.bswap(x)
   return bit_tobit(bswap(x % MOD))
 end
-]]
 
 return M
