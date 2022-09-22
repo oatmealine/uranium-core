@@ -529,7 +529,7 @@
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
     self:addcommand('Off', exit)
-    self:addcommand('SaltyResetMessageCommand', exit)
+    self:addcommand('SaltyReset', exit)
     self:addcommand('WindowFocus', function()
       uranium:call('focus', true)
     end)
