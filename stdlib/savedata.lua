@@ -161,6 +161,15 @@ function self.save(instant)
   end
 end
 
+function self.getLastSave()
+  checkIfInitialized()
+  if savedata._lastSave and savedata._lastSave[1] == 0 and savedata._lastSave[2] == 0 and savedata._lastSave[3] == 0 and savedata._lastSave[4] == 0 and savedata._lastSave[5] == 0 then
+    return nil
+  else
+    return savedata._lastSave
+  end
+end
+
 function uranium.init()
   loadedSavedata = true
   if savedataName then
@@ -174,6 +183,13 @@ function uranium.update()
     PROFILEMAN:SaveMachineProfile()
     uranium:call('saveFinished')
     print('saved to profile')
+  end
+end
+
+function self.enableAutosave()
+  checkIfInitialized()
+  function uranium.exit()
+    self.save(true)
   end
 end
 
