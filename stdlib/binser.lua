@@ -47,7 +47,7 @@ if not select then
             return #arg
         else
             local values = {}
-            for i = math.max(index + 1, 1), #arg do
+            for i = math.max(index, 1), #arg do
                 table.insert(values, arg[i])
             end
             return unpack(values)

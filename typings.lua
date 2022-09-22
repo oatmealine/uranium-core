@@ -11,6 +11,8 @@ GAMESTATE = {}
 PREFSMAN = {}
 ---@type ScreenManager
 SCREENMAN = {}
+---@type ProfileManager
+PROFILEMAN = {}
 
 ---@return Quad
 --- Defines a Quad actor.

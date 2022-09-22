@@ -155,3 +155,25 @@ function clearMetatables(tab)
     end
   end
 end
+
+---@param source string
+---@param sep string
+---@return string[]
+-- https://stackoverflow.com/a/42607786
+function split(source, sep)
+  local result, i = {}, 1
+  while true do
+    local a, b = string.find(source, sep)
+    if not a then break end
+    local candidat = string.sub(source, 1, a - 1)
+    if candidat ~= '' then
+      result[i] = candidat
+    end
+    i = i + 1
+    source = string.sub(source, b + 1)
+  end
+  if source ~= '' then
+    result[i] = source
+  end
+  return result
+end
