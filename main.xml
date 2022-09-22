@@ -465,6 +465,7 @@
       frag = fragFile and ('../' .. fragFile) or 'nop.frag',
       vert = vertFile and ('../' .. vertFile) or 'nop.vert',
       init = function(a)
+        a:hidden(1)
         actor.__lock(a:GetShader())
 
         -- shader code stuff
