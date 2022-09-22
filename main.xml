@@ -529,6 +529,13 @@
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
     self:addcommand('Off', exit)
+    self:addcommand('SaltyResetMessageCommand', exit)
+    self:addcommand('WindowFocus', function()
+      uranium:call('focus', true)
+    end)
+    self:addcommand('WindowFocusLost', function()
+      uranium:call('focus', false)
+    end)
     self:queuecommand('Ready')
   else
     Trace('got an error loading main.lua!')
