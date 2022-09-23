@@ -23,9 +23,9 @@ function vect:lengthSquared()
   return self.x * self.x + self.y * self.y
 end
 
----@return number
+---@return number @angle in degrees
 function vect:angle()
-  return math.atan2(self.y, self.x)
+  return math.deg(math.atan2(self.y, self.x))
 end
 
 ---@return vector2D
@@ -44,6 +44,7 @@ function vect:resize(x)
   return vector2D(n.x * x, n.y * x)
 end
 
+---@param ang number @angle in degrees
 ---@return vector2D
 function vect:rotate(ang)
   local a = self:angle()
