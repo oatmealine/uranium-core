@@ -58,6 +58,7 @@ function ActorFrame() end
 ---@param actor Actor
 --- Resets an actor to its initial state
 function reset(actor) end
+resetActor = reset
 
 ---@param frame ActorFrame
 ---@param actor Actor
@@ -115,3 +116,10 @@ function uranium:call(event, ...) end
 
 --- Equivalent to a modfile-sandboxed `_G`, similar to Mirin's `xero`. You shouldn't need this; and if you do, *what are you doing?*
 oat = _G
+
+---@class ProfilerInfo
+---@field public t number
+---@field public src string
+
+---@type table<string, ProfilerInfo>
+profilerInfo = {}
