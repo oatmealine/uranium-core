@@ -241,11 +241,13 @@
 
   GAMESTATE:ApplyModifiers('clearall')
 
+  local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
+
   function setDrawFunction(frame, func)
     frame:SetDrawFunction(function()
       for i = 1, frame:GetNumChildren() do
         local a = frame:GetChildAt(i - 1)
-        if a.fov then -- actorframe
+        if specialActorFrames[a] == false then
           a:Draw()
         end
       end
@@ -362,7 +364,7 @@
     self:SetDrawFunction(function()
       for i = 1, self:GetNumChildren() do
         local a = self:GetChildAt(i - 1)
-        if a.fov then -- actorframe
+        if specialActorFrames[a] == false then
           a:Draw()
         end
       end
@@ -371,6 +373,9 @@
     if currentPath.init then
       currentPath.init(self)
       currentPath.init = nil
+      specialActorFrames[self] = true
+    else
+      specialActorFrames[self] = false
     end
   end
 
