@@ -54,6 +54,7 @@ function Shader(frag, vert) end
 ---@param actor Actor
 --- Resets an actor to its initial state
 function reset(actor) end
+resetActor = reset
 
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.

@@ -218,6 +218,7 @@
       end
     end
   end
+  resetActor = reset
 
   -- runs once during ScreenReadyCommand, before the user code is loaded
   -- hides various actors that are placed by the theme
