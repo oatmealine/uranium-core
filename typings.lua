@@ -50,10 +50,19 @@ function ActorFrameTexture() end
 ---@return RageShaderProgram
 --- Defines a shader. `frag` and `vert` can either be filenames or shader code.
 function Shader(frag, vert) end
+---@return ActorFrame
+---@see addChild
+--- Defines an ActorFrame. Add children to it with `addChild`.
+function ActorFrame() end
 
 ---@param actor Actor
 --- Resets an actor to its initial state
 function reset(actor) end
+
+---@param frame ActorFrame
+---@param actor Actor
+--- Adds a child to an ActorFrame. **Please be aware of the side-effects!**
+function addChild(frame, actor) end
 
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.
