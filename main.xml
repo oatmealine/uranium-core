@@ -167,8 +167,11 @@
     hasExited = true
     uranium:call('exit')
     -- good templates clean up after themselves
+    uranium = nil
     _G.oat = nil
+    oat = nil
     _main:hidden(1)
+    collectgarbage()
   end
 
   local actorsInitialized = false -- if true, no new actors can be created
@@ -236,61 +239,21 @@
     end
   end
 
-  local lastt = GAMESTATE:GetSongTime()
-  local function screen_ready_command(self)
-    hideThemeActors()
-    self:hidden(0)
+  GAMESTATE:ApplyModifiers('clearall')
 
-    local errored = false
-    local firstrun = true
-    local playersLoaded = false
-    self:addcommand('Update', function()
-      if errored then
-        return 0
-      end
-      errored = true
+  local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
 
-      if P1 and P2 then
-        playersLoaded = true
-      end
-      if playersLoaded and not P1 and not P2 then -- sora exit hack
-        exit()
-      end
-
-      t = os.clock()
-      b = GAMESTATE:GetSongBeat()
-      local dt = t - lastt
-      lastt = t
-
-      if firstrun then
-        firstrun = false
-        dt = 0
-        self:GetChildren()[2]:hidden(1)
-        uranium:call('ready')
-      end
-
-      for _, q in ipairs(globalQueue) do
-        local actor = q[1]
-        local v = q[2]
-
-        local func = actor[v[1]]
-        if not func then
-          -- uhmmm ??? hm. what do we do??
-        else
-          patchFunction(func, actor)(unpack(v[2]))
+  function setDrawFunction(frame, func)
+    frame:SetDrawFunction(function()
+      for i = 1, frame:GetNumChildren() do
+        local a = frame:GetChildAt(i - 1)
+        if specialActorFrames[a] == false then
+          a:Draw()
         end
       end
-
-      uranium:call('update', dt)
-
-      errored = false
-
-      return 0
+      func()
     end)
-    self:luaeffect('Update')
   end
-
-  GAMESTATE:ApplyModifiers('clearall')
 
   -- actors
 
@@ -332,12 +295,15 @@
 
   function oat._actor.recurse(forceActor)
     local newFrame, idx = findFirstActorFrame(currentPath)
-    if newFrame and not (currentActor and forceActor) then
+    local newActor = findFirstActor(currentPath)
+    if newFrame and not (newActor and forceActor) then
+      print('creating frame')
       table.insert(pastPaths, currentPath)
       currentPath = currentPath[idx]
       table.remove(pastPaths[#pastPaths], idx)
       return true
-    elseif currentActor then
+    elseif newActor then
+      print('creating actor')
       table.insert(pastPaths, currentPath)
       return true
     else
@@ -346,6 +312,7 @@
   end
 
   function oat._actor.recurseLast()
+    print('recurselast: hi!')
     return oat._actor.recurse(true)
   end
 
@@ -396,8 +363,8 @@
     self:removecommand('Init')
     self:SetDrawFunction(function()
       for i = 1, self:GetNumChildren() do
-        local a = self(i)
-        if a.fov then -- actorframe
+        local a = self:GetChildAt(i - 1)
+        if specialActorFrames[a] == false then
           a:Draw()
         end
       end
@@ -406,6 +373,9 @@
     if currentPath.init then
       currentPath.init(self)
       currentPath.init = nil
+      specialActorFrames[self] = true
+    else
+      specialActorFrames[self] = false
     end
   end
 
@@ -476,11 +446,14 @@
                 )
               end
             end
+            -- to make mr. Garbage Collector's job easier
             initCommands = {}
-            queueRepresentation = nil -- to make mr. Garbage Collector's job easier
+            queueRepresentation = nil
+            queue = {}
           end
         else
           return function(...)
+            if actorsInitialized then return end
             if key == 'addcommand' and arg[2] == 'Init' then
               table.insert(initCommands, {arg[3], debug.getinfo(2, 'Sl')})
             else
@@ -669,6 +642,71 @@
     actorTree = tree
   end
 
+  local lastt = GAMESTATE:GetSongTime()
+  local function screenReadyCommand(self)
+    hideThemeActors()
+    self:hidden(0)
+    oat._actor = {}
+
+    actorQueue = {}
+    actorAssociationQueue = {}
+
+    actorTree = {}
+    currentPath = nil
+    pastPaths = {}
+    currentActor = nil
+
+    collectgarbage()
+
+    local errored = false
+    local firstrun = true
+    local playersLoaded = false
+    self:addcommand('Update', function()
+      if errored then
+        return 0
+      end
+      errored = true
+
+      if P1 and P2 then
+        playersLoaded = true
+      end
+      if playersLoaded and not P1 and not P2 then -- sora exit hack
+        exit()
+      end
+
+      t = os.clock()
+      b = GAMESTATE:GetSongBeat()
+      local dt = t - lastt
+      lastt = t
+
+      if firstrun then
+        firstrun = false
+        dt = 0
+        self:GetChildren()[2]:hidden(1)
+        uranium:call('ready')
+      end
+
+      for _, q in ipairs(globalQueue) do
+        local actor = q[1]
+        local v = q[2]
+
+        local func = actor[v[1]]
+        if not func then
+          -- uhmmm ??? hm. what do we do??
+        else
+          patchFunction(func, actor)(unpack(v[2]))
+        end
+      end
+
+      uranium:call('update', dt)
+
+      errored = false
+
+      return 0
+    end)
+    self:luaeffect('Update')
+  end
+
   local success, result = pcall(function()
     require('main')
     require('stdlib.util')
@@ -684,7 +722,7 @@
     currentPath = actorTree
 
     self:addcommand('On', onCommand)
-    self:addcommand('Ready', screen_ready_command)
+    self:addcommand('Ready', screenReadyCommand)
     self:addcommand('Off', exit)
     self:addcommand('SaltyReset', exit)
     self:addcommand('WindowFocus', function()
