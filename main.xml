@@ -323,35 +323,33 @@
   local function nextActor()
     local new, idx = findFirstActor(currentPath)
     if not new then
-      print('no actor!')
       currentActor = nil
     else
-      print('adding new actor')
       currentActor = new
       table.remove(currentPath, idx)
     end
   end
 
-  function oat._actor.recurse()
+  function oat._actor.recurse(forceActor)
     local newFrame, idx = findFirstActorFrame(currentPath)
-    if newFrame then
+    if newFrame and not (currentActor and forceActor) then
       table.insert(pastPaths, currentPath)
       currentPath = currentPath[idx]
       table.remove(pastPaths[#pastPaths], idx)
-      print('recursing: ' .. #pastPaths)
       return true
     elseif currentActor then
       table.insert(pastPaths, currentPath)
-      print('recursing (actor): ' .. #pastPaths)
       return true
     else
-      print('no actor or actorframe!')
       return false
     end
   end
 
+  function oat._actor.recurseLast()
+    return oat._actor.recurse(true)
+  end
+
   function oat._actor.endRecurse()
-    print('heading back: ' .. #pastPaths)
     currentPath = table.remove(pastPaths, #pastPaths)
   end
 
@@ -395,7 +393,6 @@
   end
 
   function oat._actor.initFrame(self)
-    print('initializing an actorframe')
     self:removecommand('Init')
     self:SetDrawFunction(function()
       for i = 1, self:GetNumChildren() do
@@ -407,7 +404,6 @@
     end)
 
     if currentPath.init then
-      print('found init function, calling')
       currentPath.init(self)
       currentPath.init = nil
     end

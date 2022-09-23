@@ -32,6 +32,6 @@
   <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
   <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
   <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
-  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurseLast()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
 
 </children></ActorFrame>
