@@ -1,5 +1,7 @@
 xero = oat
-xero.foreground = oat._main
+
+local xeroActorsAF = ActorFrame()
+xero.foreground = xeroActorsAF
 xero.MIRIN_VERSION = 'URANIUM-5.0.1'
 
 
@@ -11,8 +13,6 @@ require('stdlib.mirin.std')
 require('stdlib.mirin.sort')
 require('stdlib.mirin.ease')
 require('stdlib.mirin.template')
-
-local xeroActorsAF = Quad()
 
 function uranium.init()
   xero.init_command(xeroActorsAF)
