@@ -266,7 +266,28 @@
   -- actors
 
   local actorQueue = {}
+  local actorAssociationQueue = {}
+
+  local actorTree = {}
+  local currentPath
+  local pastPaths = {}
   local currentActor = nil
+
+  local function findFirstActor(path)
+    for i, v in ipairs(path) do
+      if v.type or v.file then
+        return v, i
+      end
+    end
+  end
+
+  local function findFirstActorFrame(path)
+    for i, v in ipairs(path) do
+      if not v.type and not v.file then
+        return v, i
+      end
+    end
+  end
 
   oat._actor = {}
 
@@ -315,14 +336,17 @@
 
   function oat._actor.init(self)
     currentActor.init(self)
+    currentActor = nil -- shouldn't be needed from now on
   end
 
   function oat._actor.initFrame(self)
-    local nextChild = self(2)
+    print('initiating an actorframe')
+    --local nextChild = self(2)
     self:SetDrawFunction(function()
-      if nextChild then
-        nextChild:Draw()
-      end
+      --if nextChild then
+      --  nextChild:Draw()
+      --end
+      -- TODO
     end)
   end
 
@@ -330,6 +354,7 @@
     local queue = {}
     local initCommands = {}
     local lockedActor
+    local queueRepresentation
 
     return setmetatable({}, {
       __index = function(self, key)
@@ -343,8 +368,17 @@
           end
           return val
         end
+        if key == '__queue' then
+          return queueRepresentation
+        end
+        if key == '__queueRepresentation' then
+          return function(q)
+            queueRepresentation = q
+          end
+        end
         if key == '__lock' then
           return function(actor)
+            if lockedActor then return end
             for _, v in ipairs(queue) do
               local func = actor[v[1]]
               if not func then
@@ -384,6 +418,7 @@
               end
             end
             initCommands = {}
+            queueRepresentation = nil -- to make mr. Garbage Collector's job easier
           end
         else
           return function(...)
@@ -398,7 +433,7 @@
       __newindex = function()
         error('uranium: cannot set properties on actors!', 2)
       end,
-      __tostring = function() return name end,
+      __tostring = function() return 'Proxy of ' .. name end,
       __name = name
     })
   end
@@ -409,11 +444,11 @@
       local actor = createProxyActor(type)
       table.insert(actorQueue, {
         type = type,
-        file = nil,
         init = function(a)
           actor.__lock(a)
         end
       })
+      actor.__queueRepresentation(actorQueue[#actorQueue])
       return actor
     end
   end
@@ -436,6 +471,20 @@
         actor.__lock(a)
       end
     })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
+    return actor
+  end
+
+  function ActorFrame()
+    if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+    local actor = createProxyActor('ActorFrame')
+    table.insert(actorQueue, {
+      type = 'ActorFrame',
+      init = function(a)
+        actor.__lock(a)
+      end
+    })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
     return actor
   end
 
@@ -474,6 +523,7 @@
         end
       end
     })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
     return actor
   end
 
@@ -488,6 +538,7 @@
         actor.__lock(a)
       end
     })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
     return actor
   end
 
@@ -502,6 +553,7 @@
         actor.__lock(a)
       end
     })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
     return actor
   end
 
@@ -516,15 +568,61 @@
         actor.__lock(a)
       end
     })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
     return actor
   end
 
+  function addChild(frame, actor)
+    actorAssociationQueue[actor.__queue] = frame.__queue
+  end
+  
+  local function transformQueueToTree()
+    local tree = {}
+    local paths = {}
+    local iter = 0
+    while #actorQueue > 0 do
+      iter = iter + 1
+      if iter > 999999 then
+        error('uranium: failed to transform queue to tree: reached maximum iteration limit! is there an actor with an invalid actorframe?')
+      end
+      for i = #actorQueue, 1, -1 do
+        v = actorQueue[i]
+        local insertInto
+        if not actorAssociationQueue[v] then
+          insertInto = tree
+        else
+          if paths[actorAssociationQueue[v]] then
+            insertInto = paths[actorAssociationQueue[v]]
+          end
+        end
+        if insertInto then
+          if v.type == 'ActorFrame' then
+            table.insert(insertInto, {init = v.init})
+            table.remove(actorQueue, i)
+            paths[v] = insertInto[#insertInto]
+          else
+            table.insert(insertInto, v)
+            table.remove(actorQueue, i)
+          end
+        end
+      end
+    end
+    actorTree = tree
+  end
+
   local success, result = pcall(function()
-    require('main')
+    --require('main')
+    --require('stdlib.util')
   end)
 
   if success then
     luaobj = result
+
+    --local queue = actorQueue
+    --actorQueue = deepcopy(actorQueue)
+    --transformQueueToTree()
+    --Trace(fullDump(actorTree))
+    --currentPath = actorTree
 
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
@@ -548,6 +646,7 @@
   -- By removing the command after it's done, it can only ever run once
   self:removecommand('Init')
 end"><children>
-  <Layer Condition="oat._actor.next()" File="actors.xml"/>
+  <!--<Layer Condition="oat._actor.next()" File="actors.xml" />-->
+  <Layer File="actorsTest.xml" />
   <Layer Type="Quad" InitCommand="xywh,SCREEN_CENTER_X,SCREEN_CENTER_Y,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,#000000;sleep,9e9"/>
 </children></Layer>
