@@ -1,7 +1,37 @@
-<ActorFrame InitCommand="%oat._actor.initFrame">
-  <children>
-    <Layer Condition="oat._actor.noShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
-    <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" InitCommand="%oat._actor.init"/>
-    <Layer Condition="oat._actor.next()" File="actors.xml" />
-  </children>
-</ActorFrame>
+<ActorFrame InitCommand="%oat._actor.initFrame"><children>
+
+  <!-- help -->
+
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+  <Layer Condition="oat._actor.noShader()"  Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init"/>
+  <Layer Condition="oat._actor.hasShader()" Type="@oat._actor.type()" File="@oat._actor.file()" Font="@oat._actor.font()" InitCommand="%oat._actor.init" Frag="@oat._actor.frag()" Vert="@oat._actor.vert()" />
+
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+  <Layer Condition="oat._actor.recurse()" File="actors.xml" InitCommand="%oat._actor.endRecurse" />
+
+</children></ActorFrame>

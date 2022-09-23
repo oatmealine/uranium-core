@@ -145,6 +145,9 @@
     if hasExited then return end
     hasExited = true
     uranium:call('exit')
+    -- good templates clean up after themselves
+    _G.oat = nil
+    _main:hidden(1)
   end
 
   local actorsInitialized = false -- if true, no new actors can be created
@@ -218,15 +221,19 @@
 
     local errored = false
     local firstrun = true
+    local playersLoaded = false
     self:addcommand('Update', function()
-      if not P1 and not P2 then -- sora exit hack
-        exit()
-      end
-
       if errored then
         return 0
       end
       errored = true
+
+      if P1 and P2 then
+        playersLoaded = true
+      end
+      if playersLoaded and not P1 and not P2 then -- sora exit hack
+        exit()
+      end
 
       t = os.clock()
       b = GAMESTATE:GetSongBeat()
@@ -291,15 +298,39 @@
 
   oat._actor = {}
 
-  function oat._actor.next()
-    local actor = actorQueue[1]
-    if actor then
-      table.remove(actorQueue, 1)
-      currentActor = actor
+  local function nextActor()
+    local new, idx = findFirstActor(currentPath)
+    if not new then
+      print('no actor!')
+      currentActor = nil
+    else
+      print('adding new actor')
+      currentActor = new
+      table.remove(currentPath, idx)
+    end
+  end
+
+  function oat._actor.recurse()
+    local newFrame, idx = findFirstActorFrame(currentPath)
+    if newFrame then
+      table.insert(pastPaths, currentPath)
+      currentPath = currentPath[idx]
+      table.remove(pastPaths[#pastPaths], idx)
+      print('recursing: ' .. #pastPaths)
+      return true
+    elseif currentActor then
+      table.insert(pastPaths, currentPath)
+      print('recursing (actor): ' .. #pastPaths)
       return true
     else
+      print('no actor or actorframe!')
       return false
     end
+  end
+
+  function oat._actor.endRecurse()
+    print('heading back: ' .. #pastPaths)
+    currentPath = table.remove(pastPaths, #pastPaths)
   end
 
   function oat._actor.cond()
@@ -311,6 +342,7 @@
   end
 
   function oat._actor.noShader()
+    nextActor()
     return oat._actor.cond() and not oat._actor.hasShader()
   end
 
@@ -336,18 +368,27 @@
 
   function oat._actor.init(self)
     currentActor.init(self)
-    currentActor = nil -- shouldn't be needed from now on
+    self:removecommand('Init')
+    currentActor = nil -- to prevent any weirdness
   end
 
   function oat._actor.initFrame(self)
-    print('initiating an actorframe')
-    --local nextChild = self(2)
+    print('initializing an actorframe')
+    self:removecommand('Init')
     self:SetDrawFunction(function()
-      --if nextChild then
-      --  nextChild:Draw()
-      --end
-      -- TODO
+      for i = 1, self:GetNumChildren() do
+        local a = self(i)
+        if a.fov then -- actorframe
+          a:Draw()
+        end
+      end
     end)
+
+    if currentPath.init then
+      print('found init function, calling')
+      currentPath.init(self)
+      currentPath.init = nil
+    end
   end
 
   local function createProxyActor(name)
@@ -575,7 +616,7 @@
   function addChild(frame, actor)
     actorAssociationQueue[actor.__queue] = frame.__queue
   end
-  
+
   local function transformQueueToTree()
     local tree = {}
     local paths = {}
@@ -611,18 +652,19 @@
   end
 
   local success, result = pcall(function()
-    --require('main')
-    --require('stdlib.util')
+    require('main')
+    require('stdlib.util')
   end)
 
   if success then
     luaobj = result
 
-    --local queue = actorQueue
-    --actorQueue = deepcopy(actorQueue)
-    --transformQueueToTree()
-    --Trace(fullDump(actorTree))
-    --currentPath = actorTree
+    print('---')
+
+    transformQueueToTree()
+    Trace(fullDump(actorTree))
+    currentPath = actorTree
+    nextActor()
 
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
@@ -646,7 +688,6 @@
   -- By removing the command after it's done, it can only ever run once
   self:removecommand('Init')
 end"><children>
-  <!--<Layer Condition="oat._actor.next()" File="actors.xml" />-->
-  <Layer File="actorsTest.xml" />
+  <Layer File="actors.xml" />
   <Layer Type="Quad" InitCommand="xywh,SCREEN_CENTER_X,SCREEN_CENTER_Y,SCREEN_WIDTH,SCREEN_HEIGHT;diffuse,#000000;sleep,9e9"/>
 </children></Layer>
