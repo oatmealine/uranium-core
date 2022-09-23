@@ -13,6 +13,8 @@ PREFSMAN = {}
 SCREENMAN = {}
 ---@type ProfileManager
 PROFILEMAN = {}
+---@type RageInput
+INPUTMAN = {}
 
 ---@return Quad
 --- Defines a Quad actor.
