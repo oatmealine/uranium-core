@@ -65,6 +65,11 @@ resetActor = reset
 --- Adds a child to an ActorFrame. **Please be aware of the side-effects!**
 function addChild(frame, actor) end
 
+---@param frame ActorFrame
+---@param func function
+--- SetDrawFunction with special behavior to account for Uranium's actor loading scheme.
+function setDrawFunction(frame, func) end
+
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.
 ---
