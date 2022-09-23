@@ -680,9 +680,8 @@
     print('---')
 
     transformQueueToTree()
-    Trace(fullDump(actorTree))
+    --Trace(fullDump(actorTree))
     currentPath = actorTree
-    nextActor()
 
     self:addcommand('On', onCommand)
     self:addcommand('Ready', screen_ready_command)
