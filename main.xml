@@ -19,7 +19,7 @@
   -- https://github.com/XeroOl/notitg-mirin/blob/0fbff2ee93d905feeb58c4aac4fe7f5f9ebc9647/template/std.lua#L17
   oat.package = {
     -- uranium template loader path
-    path = 'src/?.lua;src/?/init.lua;template/?.lua',
+    path = 'src/?.lua;src/?/init.lua;template/?.lua;template/?/init.lua',
     preload = {},
     loaded = {},
     loaders = {
