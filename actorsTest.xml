@@ -1,0 +1,6 @@
+<ActorFrame Condition="%function(self) print('actorframe condition'); return true end" InitCommand="%function(self) print('actorframe initcommand') end">
+  <children>
+    <Layer Condition="%function(self) print('sprite condition'); return true end" InitCommand="%function(self) print('sprite initcommand') end"/>
+    <Layer Condition="%function(self) print('file condition'); recursionc = (recursionc or 0) + 1; return recursionc < 4 end" InitCommand="%function(self) print('file initcommand') end" File="actors.xml" />
+  </children>
+</ActorFrame>
