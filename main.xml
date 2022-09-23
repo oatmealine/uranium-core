@@ -106,12 +106,33 @@
   oat.dw = DISPLAY:GetDisplayWidth()
   oat.dh = DISPLAY:GetDisplayHeight()
 
+  oat.useProfiler = false
+  oat.profilerInfo = {}
+
   local uraniumFunc = {}
 
+  local debugCache = {}
   function uraniumFunc:call(event, ...)
     if self._callbacks[event] then
+      profilerInfo[event] = {}
       for _, callback in ipairs(self._callbacks[event]) do
-        callback(unpack(arg))
+        local start = os.clock()
+        local res = callback(unpack(arg))
+        local dur = os.clock() - start
+
+        if oat.useProfiler then
+          if not debugCache[callback] then
+            debugCache[callback] = debug.getinfo(callback, 'Sl') -- cached cus debug.getinfo is EXPENSIVE
+          end
+          local finfo = debugCache[callback]
+
+          table.insert(profilerInfo[event], {
+            src = finfo.short_src .. ':' .. finfo.linedefined,
+            t = dur
+          })
+        end
+
+        if res ~= nil then return res end
       end
     end
   end
