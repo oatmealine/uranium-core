@@ -2,6 +2,7 @@ local self = {}
 
 local binser = require('stdlib.binser')
 require('stdlib.util')
+local scheduler = require('stdlib.scheduler')
 
 local savedataName
 local savedata = {
@@ -158,6 +159,11 @@ function self.save(instant)
     uranium:call('saveFinished')
   else
     self.saveNextFrame = true
+    scheduler:scheduleInTicks(2, function()
+      self.saveNextFrame = false
+      PROFILEMAN:SaveMachineProfile()
+      uranium:call('saveFinished')
+    end)
   end
 end
 
@@ -174,15 +180,6 @@ function uranium.init()
   loadedSavedata = true
   if savedataName then
     self.load()
-  end
-end
-
-function uranium.update()
-  if self.saveNextFrame then
-    self.saveNextFrame = false
-    PROFILEMAN:SaveMachineProfile()
-    uranium:call('saveFinished')
-    print('saved to profile')
   end
 end
 
