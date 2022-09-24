@@ -698,7 +698,9 @@
         end
       end
 
+      uranium:call('preUpdate', dt)
       uranium:call('update', dt)
+      uranium:call('postUpdate', dt)
 
       errored = false
 

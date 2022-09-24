@@ -14,7 +14,7 @@ if PROFILER_ENABLED then
   local function draw()
     if not profilerInfo[profilerShowing] then return end
 
-    quad:diffuse(0.2, 1, 0.2, 0.9)
+    quad:diffuse(0.2, 1, 0.2, 0.8)
     quad:align(0, 0)
     text:align(0, 0)
     text:shadowlength(0)
@@ -28,13 +28,13 @@ if PROFILER_ENABLED then
       quad:Draw()
 
       text:settext((math.floor(e.t * 100000) / 100) .. 'ms')
-      text:xy(0, i * 24)
-      text:zoom(0.3)
+      text:xy(0, i * 24 - 3)
+      text:zoom(0.4)
       text:diffuse(0.2, 0.2, 0.2, 0.9)
       text:Draw()
       text:settext(e.src)
-      text:xy(0, i * 24 + 12)
-      text:zoom(0.2)
+      text:xy(0, i * 24 + 8)
+      text:zoom(0.4)
       text:diffuse(0.1, 0.1, 0.1, 0.9)
       text:Draw()
     end
@@ -49,7 +49,7 @@ if PROFILER_ENABLED then
     text:Draw()
   end
 
-  function uranium.update(dt)
+  function uranium.postUpdate(dt)
     max(dt * 12)
     draw()
   end
