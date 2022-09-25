@@ -70,6 +70,10 @@ function addChild(frame, actor) end
 --- SetDrawFunction with special behavior to account for Uranium's actor loading scheme.
 function setDrawFunction(frame, func) end
 
+---@param actor Actor
+---@param shader RageShaderProgram
+function setShader(actor, shader) end
+
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.
 ---
