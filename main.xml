@@ -260,6 +260,15 @@
     actor:SetShader(shader.__raw)
   end
 
+  function setShaderfuck(shader)
+    if not shader.__raw then error('uranium: cannot set shader during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
+    DISPLAY:ShaderFuck(shader.__raw)
+  end
+
+  function clearShaderfuck()
+    DISPLAY:ClearShaderFuck()
+  end
+
   -- actors
 
   local actorQueue = {}
