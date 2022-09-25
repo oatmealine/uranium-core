@@ -311,13 +311,11 @@
     local newFrame, idx = findFirstActorFrame(currentPath)
     local newActor = findFirstActor(currentPath)
     if newFrame and not (newActor and forceActor) then
-      print('creating frame')
       table.insert(pastPaths, currentPath)
       currentPath = currentPath[idx]
       table.remove(pastPaths[#pastPaths], idx)
       return true
     elseif newActor then
-      print('creating actor')
       table.insert(pastPaths, currentPath)
       return true
     else
@@ -326,7 +324,6 @@
   end
 
   function oat._actor.recurseLast()
-    print('recurselast: hi!')
     return oat._actor.recurse(true)
   end
 
