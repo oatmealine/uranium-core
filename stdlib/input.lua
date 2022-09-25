@@ -32,15 +32,19 @@ self.inputType = {
   Action8 = 27
 }
 
----@type table<inputType, number>
+---@type table<integer, table<inputType, number>>
 --- -1 for not pressed, time for time of press
 self.inputs = {}
----@type table<inputType, number>
+---@type table<integer, table<inputType, number>>
 self.rawInputs = {}
 
-for _, v in pairs(self.inputType) do
-  self.inputs[v] = -1
-  self.rawInputs[v] = -1
+for pn = 1, 2 do
+  self.inputs[pn] = {}
+  self.rawInputs[pn] = {}
+  for _, v in pairs(self.inputType) do
+    self.inputs[pn][v] = -1
+    self.rawInputs[pn][v] = -1
+  end
 end
 
 self.directions = {
@@ -80,15 +84,26 @@ function self.getInputName(i)
 end
 
 ---@param i string
+---@param pn number | nil
 ---@return number
-function self.getInput(i)
-  return self.inputs[self.inputType[i]]
+function self.getInput(i, pn)
+  if not pn then
+    for plr = 1, 2 do
+      if self.inputs[plr][self.inputType[i]] ~= -1 then
+        return self.inputs[plr][self.inputType[i]]
+      end
+    end
+    return -1
+  else
+    return self.inputs[pn][self.inputType[i]]
+  end
 end
 
 ---@param i string
+---@param pn number | nil
 ---@return boolean
-function self.isDown(i)
-  return self.getInput(i) ~= -1
+function self.isDown(i, pn)
+  return self.getInput(i, pn) ~= -1
 end
 
 function uranium.init()
@@ -98,14 +113,14 @@ function uranium.init()
       local v = v
 
       _main:addcommand('StepP' .. pn .. j .. 'PressMessage', function()
-        self.rawInputs[v] = t
-        if uranium:call('press', v) then return end
-        self.inputs[v] = t
+        self.rawInputs[pn][v] = t
+        if uranium:call('press', v, pn) then return end
+        self.inputs[pn][v] = t
       end)
       _main:addcommand('StepP' .. pn .. j .. 'LiftMessage', function()
-        if uranium:call('release', v) then return end
-        self.inputs[v] = -1
-        self.rawInputs[v] = -1
+        self.rawInputs[pn][v] = -1
+        if uranium:call('release', v, pn) then return end
+        self.inputs[pn][v] = -1
       end)
     end
   end
