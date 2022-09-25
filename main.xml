@@ -593,7 +593,7 @@
     local actor = createProxyActor('BitmapText')
     table.insert(actorQueue, {
       type = 'BitmapText',
-      font = font and (oat.dir .. font) or 'common',
+      font = font or 'common',
       init = function(a)
         if text then a:settext(text) end
         actor.__lock(a)
