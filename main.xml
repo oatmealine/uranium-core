@@ -722,7 +722,6 @@
 
   local success, result = pcall(function()
     require('main')
-    require('stdlib.util')
   end)
 
   if success then
