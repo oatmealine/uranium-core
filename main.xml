@@ -233,6 +233,11 @@
       'Overlay', 'Underlay',
       'ScoreP1', 'ScoreP2',
       'LifeP1', 'LifeP2',
+      'PlayerOptionsP1', 'PlayerOptionsP2', 'SongOptions',
+      'LifeFrame', 'ScoreFrame',
+      'DifficultyP1', 'DifficultyP2',
+      'BPMDisplay',
+      'MemoryCardDisplayP1', 'MemoryCardDisplayP2'
     } do
       local child = SCREENMAN(element)
       if child then child:hidden(1) end
