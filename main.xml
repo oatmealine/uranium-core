@@ -621,6 +621,12 @@
   end
 
   function addChild(frame, actor)
+    if not frame.__lock then
+      error('uranium: ActorFrame passed into addChild must be one instantiated with ActorFrame()!', 2)
+    end
+    if not actor.__lock then
+      error('uranium: trying to add a child to an ActorFrame that isn\'t an actor; please read the first half of "ActorFrame"', 2)
+    end
     actorAssociationQueue[actor.__queue] = frame.__queue
   end
 
@@ -630,7 +636,7 @@
     local iter = 0
     while #actorQueue > 0 do
       iter = iter + 1
-      if iter > 999999 then
+      if iter > 99999 then
         error('uranium: failed to transform queue to tree: reached maximum iteration limit! is there an actor with an invalid actorframe?')
       end
       for i = #actorQueue, 1, -1 do
