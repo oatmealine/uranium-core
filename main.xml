@@ -175,6 +175,7 @@
   end
 
   local actorsInitialized = false -- if true, no new actors can be created
+  local actorsInitializing = false -- the above but a bit more explicit
 
   local luaobj
 
@@ -205,6 +206,7 @@
 
   local function onCommand(self)
     actorsInitialized = true
+    actorsInitializing = false
     uranium:call('init')
   end
 
@@ -249,6 +251,9 @@
   local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
 
   function setDrawFunction(frame, func)
+    if not frame.__raw then error('uranium: cannot set actorframe drawfunction during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
+    if not frame.SetDrawFunction then error('uranium: expected an actorframe but got something that doesn\'t even bother to implement SetDrawFunction', 2) end
+    if type(func) ~= 'function' then error('uranium: tried to set a drawfunction to a.. ' .. type(func) .. '?? the hell', 2) end
     frame:SetDrawFunction(function()
       for i = 1, frame:GetNumChildren() do
         local a = frame:GetChildAt(i - 1)
@@ -262,6 +267,7 @@
 
   function setShader(actor, shader)
     if not shader.__raw then error('uranium: cannot set shader during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
+    if not actor.__raw then error('uranium: cannot set shader while the actor hasn\'t been loaded!', 2) end
     actor:SetShader(shader.__raw)
   end
 
@@ -488,6 +494,7 @@
 
   local function createGenericFunc(type)
     return function()
+      if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
       if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
       local actor = createProxyActor(type)
       table.insert(actorQueue, {
@@ -507,6 +514,7 @@
   ActorFrameTexture = createGenericFunc('ActorFrameTexture')
 
   function Sprite(file)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     --if not file then error('uranium: cannot create a Sprite without a file', 2) end
     local actor = createProxyActor('Sprite')
@@ -524,6 +532,7 @@
   end
 
   function ActorFrame()
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     local actor = createProxyActor('ActorFrame')
     table.insert(actorQueue, {
@@ -541,6 +550,7 @@
   end
 
   function Shader(frag, vert)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     local actor = createProxyActor('RageShaderProgram')
 
@@ -576,6 +586,7 @@
   end
 
   function Model(file)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     if not file then error('uranium: cannot create a Model without a file', 2) end
     local actor = createProxyActor('Model')
@@ -591,6 +602,7 @@
   end
 
   function BitmapText(font, text)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     local actor = createProxyActor('BitmapText')
     table.insert(actorQueue, {
@@ -606,6 +618,7 @@
   end
 
   function ActorSound(file)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     if not file then error('uranium: cannot create an ActorSound without a file', 2) end
     local actor = createProxyActor('ActorSound')
@@ -621,11 +634,17 @@
   end
 
   function addChild(frame, actor)
+    if actorsInitializing then
+      error('uranium: cannot create frame-child associations during actor initialization', 2)
+    end
+    if actorsInitialized then
+      error('uranium: cannot create frame-child associations after actors have been initialized', 2)
+    end
     if not frame.__lock then
       error('uranium: ActorFrame passed into addChild must be one instantiated with ActorFrame()!', 2)
     end
     if not actor.__lock then
-      error('uranium: trying to add a child to an ActorFrame that isn\'t an actor; please read the first half of "ActorFrame"', 2)
+      error('uranium: trying to add a child to an ActorFrame that isn\'t an actor; please read the first half of \'ActorFrame\'', 2)
     end
     actorAssociationQueue[actor.__queue] = frame.__queue
   end
@@ -740,6 +759,7 @@
 
     print('---')
 
+    actorsInitializing = true
     transformQueueToTree()
     --Trace(fullDump(actorTree))
     currentPath = actorTree
