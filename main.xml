@@ -251,7 +251,7 @@
   local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
 
   function setDrawFunction(frame, func)
-    if not frame.__raw then error('uranium: cannot set actorframe drawfunction during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
+    --if not frame.__raw then error('uranium: cannot set actorframe drawfunction during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
     if not frame.SetDrawFunction then error('uranium: expected an actorframe but got something that doesn\'t even bother to implement SetDrawFunction', 2) end
     if type(func) ~= 'function' then error('uranium: tried to set a drawfunction to a.. ' .. type(func) .. '?? the hell', 2) end
     frame:SetDrawFunction(function()
