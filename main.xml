@@ -266,14 +266,19 @@
   end
 
   function setShader(actor, shader)
-    if not shader.__raw then error('uranium: cannot set shader during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
-    if not actor.__raw then error('uranium: cannot set shader while the actor hasn\'t been loaded!', 2) end
-    actor:SetShader(shader.__raw)
+    if not shader.__raw then
+      function uranium.init() setShader(actor, shader) end
+    else
+      actor:SetShader(shader.__raw)
+    end
   end
 
   function setShaderfuck(shader)
-    if not shader.__raw then error('uranium: cannot set shader during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
-    DISPLAY:ShaderFuck(shader.__raw)
+    if not shader.__raw then
+      function uranium.init() setShaderfuck(shader) end
+    else
+      DISPLAY:ShaderFuck(shader.__raw)
+    end
   end
 
   function clearShaderfuck()
