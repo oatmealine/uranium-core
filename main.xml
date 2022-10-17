@@ -750,6 +750,10 @@
     self:luaeffect('Update')
   end
 
+  if not pcall(function() oat._release = require('release') end) then
+    oat._release = require('release_blank')
+  end
+
   local success, result = pcall(function()
     require('main')
   end)
