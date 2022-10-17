@@ -248,6 +248,7 @@
 
   GAMESTATE:ApplyModifiers('clearall')
 
+  local drawfunctionArguments = {}
   local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
 
   function setDrawFunction(frame, func)
@@ -261,7 +262,12 @@
           a:Draw()
         end
       end
-      func()
+      local args = drawfunctionArguments[frame]
+      if args then
+        func(unpack(args))
+      else
+        func()
+      end
     end)
   end
 
@@ -406,6 +412,13 @@
     end
   end
 
+  local actorMethodOverrides = {
+    Draw = function(self, ...)
+      drawfunctionArguments[self] = arg
+      self.__raw:Draw()
+    end
+  }
+
   local function createProxyActor(name)
     local queue = {}
     local initCommands = {}
@@ -418,11 +431,15 @@
           return lockedActor
         end
         if lockedActor then
-          local val = lockedActor[key]
-          if type(val) == 'function' then
-            return patchFunction(val, lockedActor)
+          if actorMethodOverrides[key] then
+            return actorMethodOverrides[key]
+          else
+            local val = lockedActor[key]
+            if type(val) == 'function' then
+              return patchFunction(val, lockedActor)
+            end
+            return val
           end
-          return val
         end
         if key == '__queue' then
           return queueRepresentation
@@ -731,6 +748,8 @@
         self:GetChildren()[2]:hidden(1)
         uranium:call('ready')
       end
+
+      drawfunctionArguments = {}
 
       for _, q in ipairs(globalQueue) do
         local actor = q[1]
