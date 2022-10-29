@@ -607,6 +607,24 @@
     return actor
   end
 
+  function Texture(file)
+    if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+    if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+    if not file then error('uranium: cannot create a texture without a file', 2) end
+    local actor = createProxyActor('RageTexture')
+
+    table.insert(actorQueue, {
+      type = 'Sprite',
+      file = file and oat.dir .. file,
+      init = function(a)
+        a:hidden(1)
+        actor.__lock(a:GetTexture())
+      end
+    })
+    actor.__queueRepresentation(actorQueue[#actorQueue])
+    return actor
+  end
+
   function Model(file)
     if actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
     if actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end

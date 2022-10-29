@@ -30,6 +30,10 @@ function Polygon() end
 --- Defines a Sprite actor.
 function Sprite(file) end
 ---@param file string
+---@return RageTexture
+--- Defines a texture.
+function Texture(file) end
+---@param file string
 ---@return Model
 --- Defines a Model actor.
 function Model(file) end
