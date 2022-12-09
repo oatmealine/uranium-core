@@ -78,6 +78,15 @@ function setDrawFunction(frame, func) end
 ---@param shader RageShaderProgram
 function setShader(actor, shader) end
 
+-- Toggle actor resetting on frame start behavior by default.
+---@param bool boolean
+function resetOnFrameStart(bool) end
+
+-- Toggle actor resetting on frame start for individual actors. `bool` defaults to the opposite of your `resetOnFrameStart` config
+---@param actor Actor
+---@param bool boolean | nil
+function resetActorOnFrameStart(actor, bool) end
+
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.
 ---

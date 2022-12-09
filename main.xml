@@ -108,6 +108,8 @@
 
   oat.useProfiler = false
   oat.profilerInfo = {}
+  local resetOnFrameStartCfg = false
+  local resetOnFrameStartActors = {}
 
   local uraniumFunc = {}
 
@@ -207,6 +209,11 @@
   local function onCommand(self)
     actorsInitialized = true
     actorsInitializing = false
+    local resetOnFrameStartActors_ = {}
+    for k,v in pairs(resetOnFrameStartActors) do
+      resetOnFrameStartActors_[k.__raw] = v
+    end
+    resetOnFrameStartActors = resetOnFrameStartActors_
     uranium:call('init')
   end
 
@@ -289,6 +296,15 @@
 
   function clearShaderfuck()
     DISPLAY:ClearShaderFuck()
+  end
+
+  function resetOnFrameStart(bool)
+    resetOnFrameStartCfg = bool
+  end
+
+  function resetActorOnFrameStart(actor, bool)
+    if bool == nil then bool = not resetOnFrameStartCfg end
+    resetOnFrameStartActors[actor.__raw or actor] = bool
   end
 
   -- actors
@@ -770,14 +786,21 @@
       drawfunctionArguments = {}
 
       for _, q in ipairs(globalQueue) do
+        local enabled = resetOnFrameStartCfg
+
         local actor = q[1]
         local v = q[2]
 
-        local func = actor[v[1]]
-        if not func then
-          -- uhmmm ??? hm. what do we do??
-        else
-          patchFunction(func, actor)(unpack(v[2]))
+        local pref = resetOnFrameStartActors[actor]
+        if pref ~= nil then enabled = pref end
+
+        if enabled then
+          local func = actor[v[1]]
+          if not func then
+            -- uhmmm ??? hm. what do we do??
+          else
+            patchFunction(func, actor)(unpack(v[2]))
+          end
         end
       end
 
