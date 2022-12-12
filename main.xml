@@ -630,7 +630,6 @@
     local actor = createProxyActor('RageTexture')
 
     table.insert(actorQueue, {
-      type = 'Sprite',
       file = file and oat.dir .. file,
       init = function(a)
         a:hidden(1)
