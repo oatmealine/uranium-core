@@ -689,6 +689,9 @@
   end
 
   function addChild(frame, actor)
+    if not frame or not actor then
+      error('uranium: frame and actor must both Exist', 2)
+    end
     if actorsInitializing then
       error('uranium: cannot create frame-child associations during actor initialization', 2)
     end
