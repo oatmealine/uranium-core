@@ -307,6 +307,17 @@
     resetOnFrameStartActors[actor.__raw or actor] = bool
   end
 
+  local actorAssociationTable = {}
+
+  function getChildren(frame)
+    local c = actorAssociationTable[frame]
+    if c then
+      return c
+    else
+      error('uranium: actorframe doesn\'t exist (or isn\'t an actorframe)', 2)
+    end
+  end
+
   -- actors
 
   local actorQueue = {}
@@ -580,6 +591,7 @@
       end
     })
     actor.__queueRepresentation(actorQueue[#actorQueue])
+    actorAssociationTable[actor] = {}
     return actor
   end
 
@@ -705,6 +717,7 @@
       error('uranium: trying to add a child to an ActorFrame that isn\'t an actor; please read the first half of \'ActorFrame\'', 2)
     end
     actorAssociationQueue[actor.__queue] = frame.__queue
+    table.insert(actorAssociationTable[frame], actor)
   end
 
   local function transformQueueToTree()

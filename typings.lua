@@ -87,6 +87,11 @@ function resetOnFrameStart(bool) end
 ---@param bool boolean | nil
 function resetActorOnFrameStart(actor, bool) end
 
+-- Gets every child of an ActorFrame. More accurate than :GetChildren()
+---@param frame ActorFrame
+---@return Actor[]
+function getChildren(frame) end
+
 ---@type number
 --- A simple timer. Ticks upwards at a rate of 1/sec.
 ---
