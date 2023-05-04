@@ -17,4 +17,15 @@ function self.aft(self)
   self:Create()
 end
 
+function self.aftSetup()
+	local a = ActorFrameTexture()
+	local b = Sprite()
+  uranium.on('init', function()
+    self.aft(a)
+		self.sprite(b)
+		b:SetTexture(a:GetTexture())
+  end)
+	return a, b
+end
+
 return self

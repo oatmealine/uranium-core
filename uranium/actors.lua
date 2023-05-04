@@ -348,17 +348,17 @@ local function createGenericFunc(type)
   end
 end
 
----@return Quad
 --- Defines a Quad actor.
+---@type fun(): Quad
 Quad = createGenericFunc('Quad')
----@return ActorProxy
 --- Defines an ActorProxy actor.
+---@type fun(): ActorProxy
 ActorProxy = createGenericFunc('ActorProxy')
----@return Polygon
 --- Defines a Polygon actor.
+---@type fun(): Polygon
 Polygon = createGenericFunc('Polygon')
----@return ActorFrameTexture
 --- Defines an ActorFrameTexture actor.
+---@type fun(): ActorFrameTexture
 ActorFrameTexture = createGenericFunc('ActorFrameTexture')
 
 ---@param file string | nil
