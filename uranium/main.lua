@@ -28,6 +28,7 @@ dh = DISPLAY:GetDisplayHeight()
 local resetOnFrameStartCfg = false
 local resetOnFrameStartActors = {}
 
+--- The Uranium Template table! All template-related functionality is stored here.
 uranium = {}
 
 require 'uranium.events'
@@ -36,7 +37,7 @@ local hasExited = false
 local function exit()
   if hasExited then return end
   hasExited = true
-  uranium:call('exit')
+  uranium.call('exit')
   -- good templates clean up after themselves
   uranium = nil
   _G.oat = nil
@@ -66,7 +67,7 @@ local function onCommand(self)
     resetOnFrameStartActors_[k.__raw] = v
   end
   resetOnFrameStartActors = resetOnFrameStartActors_
-  uranium:call('init')
+  uranium.call('init')
 end
 
 -- runs once during ScreenReadyCommand, before the user code is loaded
@@ -141,7 +142,7 @@ local function screenReadyCommand(self)
       firstrun = false
       dt = 0
       self:GetChildren()[2]:hidden(1)
-      uranium:call('ready')
+      uranium.call('ready')
     end
 
     drawfunctionArguments = {}
@@ -165,9 +166,9 @@ local function screenReadyCommand(self)
       end
     end
 
-    uranium:call('preUpdate', dt)
-    uranium:call('update', dt)
-    uranium:call('postUpdate', dt)
+    uranium.call('preUpdate', dt)
+    uranium.call('update', dt)
+    uranium.call('postUpdate', dt)
 
     errored = false
 
@@ -189,7 +190,7 @@ if success then
 
   print('---')
 
-  actorsInitializing = true
+  oat._actorsInitializing = true
   oat._transformQueueToTree()
   --Trace(fullDump(oat._actorTree))
   oat._currentPath = oat._actorTree
@@ -199,10 +200,10 @@ if success then
   _main:addcommand('Off', exit)
   _main:addcommand('SaltyReset', exit)
   _main:addcommand('WindowFocus', function()
-    uranium:call('focus', true)
+    uranium.call('focus', true)
   end)
   _main:addcommand('WindowFocusLost', function()
-    uranium:call('focus', false)
+    uranium.call('focus', false)
   end)
   _main:queuecommand('Ready')
 else

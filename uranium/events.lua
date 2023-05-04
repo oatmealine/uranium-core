@@ -1,18 +1,23 @@
 useProfiler = false
 profilerInfo = {}
 
-local uraniumFunc = {}
+local callbacks = {}
 
 local debugCache = {}
-function uraniumFunc:call(event, ...)
-  if self._callbacks[event] then
+
+---@param event string
+---@param ... any
+---@return any
+--- Call a defined callback.
+function uranium.call(event, ...)
+  if callbacks[event] then
     profilerInfo[event] = {}
-    for _, callback in ipairs(self._callbacks[event]) do
+    for _, callback in ipairs(callbacks[event]) do
       local start = os.clock()
       local res = callback(unpack(arg))
       local dur = os.clock() - start
 
-      if oat.useProfiler then
+      if useProfiler then
         if not debugCache[callback] then
           debugCache[callback] = debug.getinfo(callback, 'Sl') -- cached cus debug.getinfo is EXPENSIVE
         end
@@ -29,16 +34,12 @@ function uraniumFunc:call(event, ...)
   end
 end
 
-local uraniumMeta = {}
-
-function uraniumMeta:__newindex(key, value)
-  if self._callbacks[key] then
-    table.insert(self._callbacks[key], value)
-  else
-    self._callbacks[key] = {value}
+---@param event string
+---@param f function
+--- Register a callback handler.
+function uranium.on(event, f)
+  if not callbacks[event] then
+    callbacks[event] = {}
   end
+  table.insert(callbacks[event], f)
 end
-
-uraniumMeta.__index = uraniumFunc
-
-uranium = setmetatable({_callbacks = {}}, uraniumMeta)

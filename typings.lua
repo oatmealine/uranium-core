@@ -127,20 +127,6 @@ dw = 0
 --- The display height.
 dh = 0
 
---- The Uranium Template table! Mostly callback-related stuff goes here.
-uranium = {}
-
---- A callback for initialization. Called on `OnCommand`.
-uranium.init = function() end
---- A callback for updates. Called every frame. Draw stuff here!
-uranium.update = function() end
-
----@param event string
----@param ... any
----@return any
---- Call a defined callback.
-function uranium:call(event, ...) end
-
 --- Equivalent to a modfile-sandboxed `_G`, similar to Mirin's `xero`. You shouldn't need this; and if you do, *what are you doing?*
 oat = _G
 

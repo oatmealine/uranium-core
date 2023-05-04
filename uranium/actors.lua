@@ -26,7 +26,7 @@ end
 
 function setShader(actor, shader)
   if not shader.__raw then
-    function uranium.init() setShader(actor, shader) end
+    uranium.on('init', function() setShader(actor, shader) end)
   else
     actor:SetShader(shader.__raw)
   end
@@ -34,7 +34,7 @@ end
 
 function setShaderfuck(shader)
   if not shader.__raw then
-    function uranium.init() setShaderfuck(shader) end
+    uranium.on('init', function() setShaderfuck(shader) end)
   else
     DISPLAY:ShaderFuck(shader.__raw)
   end
@@ -81,7 +81,7 @@ end
 oat._globalQueue = {} -- for resetting
 
 function reset(actor)
-  if not actorsInitialized then error('uranium: cannot reset an actor during initialization', 2) end
+  if not oat._actorsInitialized then error('uranium: cannot reset an actor during initialization', 2) end
   for _, q in ipairs(oat._globalQueue) do
     local queueActor = q[1]
     if queueActor == actor.__raw then
