@@ -55,8 +55,6 @@ function backToSongWheel(message)
   _main:hidden(1)
 end
 
-local luaobj
-
 local function onCommand(self)
   uranium.actors._actorsInitialized = true
   uranium.actors._actorsInitializing = false
@@ -202,8 +200,6 @@ local success, result = pcall(function()
 end)
 
 if success then
-  luaobj = result
-
   print('---')
 
   uranium.actors._actorsInitializing = true
