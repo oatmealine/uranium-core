@@ -1,9 +1,7 @@
 require 'uranium.constants'
 require 'uranium.events'
 local actors = require 'uranium.actors'
-
-local resetOnFrameStartCfg = false
-local resetOnFrameStartActors = {}
+local config = require 'uranium.config'
 
 local hasExited = false
 local function exit()
@@ -34,10 +32,10 @@ local function onCommand(self)
   actors._actorsInitialized = true
   actors._actorsInitializing = false
   local resetOnFrameStartActors_ = {}
-  for k,v in pairs(resetOnFrameStartActors) do
+  for k,v in pairs(config.resetActorOnFrameStart) do
     resetOnFrameStartActors_[k.__raw] = v
   end
-  resetOnFrameStartActors = resetOnFrameStartActors_
+  config.resetActorOnFrameStart = resetOnFrameStartActors_
   uranium.call('init')
 end
 
@@ -61,25 +59,14 @@ end
 
 GAMESTATE:ApplyModifiers('clearall')
 
--- Toggle actor resetting on frame start behavior by default.
----@param bool boolean
-function resetOnFrameStart(bool)
-  resetOnFrameStartCfg = bool
-end
-
--- Toggle actor resetting on frame start for individual actors. `bool` defaults to the opposite of your `resetOnFrameStart` config
----@param actor Actor
----@param bool boolean | nil
-function resetActorOnFrameStart(actor, bool)
-  if bool == nil then bool = not resetOnFrameStartCfg end
-  resetOnFrameStartActors[actor.__raw or actor] = bool
-end
-
 local lastt = GAMESTATE:GetSongTime()
 local function screenReadyCommand(self)
   actors.finalize()
 
-  hideThemeActors()
+  if config.hideThemeActors then
+    hideThemeActors()
+  end
+
   self:hidden(0)
 
   collectgarbage()
@@ -116,12 +103,12 @@ local function screenReadyCommand(self)
     drawfunctionArguments = {}
 
     for _, q in ipairs(actors._globalQueue) do
-      local enabled = resetOnFrameStartCfg
+      local enabled = config.resetOnFrameStart
 
       local actor = q[1]
       local v = q[2]
 
-      local pref = resetOnFrameStartActors[actor]
+      local pref = config.resetActorOnFrameStart[actor]
       if pref ~= nil then enabled = pref end
 
       if enabled then
