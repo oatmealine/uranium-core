@@ -1,14 +1,14 @@
 local oldAutoplay
 
 return function()
-  function uranium.ready()
+  uranium.on('ready', function()
     oldAutoplay = PREFSMAN:GetPreference('AutoPlay')
     PREFSMAN:SetPreference('AutoPlay', 0)
-  end
+  end)
 
-  function uranium.exit()
+  uranium.on('exit', function()
     if oldAutoplay and oldAutoplay ~= 0 then
       PREFSMAN:SetPreference('AutoPlay', oldAutoplay)
     end
-  end
+  end)
 end

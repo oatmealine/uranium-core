@@ -49,8 +49,8 @@ if PROFILER_ENABLED then
     text:Draw()
   end
 
-  function uranium.postUpdate(dt)
+  uranium.on('postUpdate', function(dt)
     max(dt * 12)
     draw()
-  end
+  end)
 end

@@ -106,7 +106,7 @@ function self.isDown(i, pn)
   return self.getInput(i, pn) ~= -1
 end
 
-function uranium.init()
+uranium.on('init', function()
   for pn = 1, 2 do
     for j, v in pairs(self.inputType) do
       local j = j -- lua scope funnies
@@ -124,6 +124,6 @@ function uranium.init()
       end)
     end
   end
-end
+end)
 
 return self

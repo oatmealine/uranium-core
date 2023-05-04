@@ -8,9 +8,9 @@ return function()
     P2:SetNoteDataFromLua({})
   end
 
-  function uranium.update()
+  uranium.on('update', function()
     if b >= 1 then
       GAMESTATE:SetSongBeat(b % 1)
     end
-  end
+  end)
 end

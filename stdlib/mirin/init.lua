@@ -14,6 +14,6 @@ require('stdlib.mirin.sort')
 require('stdlib.mirin.ease')
 require('stdlib.mirin.template')
 
-function uranium.init()
+uranium.on('init', function()
   xero.init_command(xeroActorsAF)
-end
+end)

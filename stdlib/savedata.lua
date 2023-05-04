@@ -176,18 +176,18 @@ function self.getLastSave()
   end
 end
 
-function uranium.init()
+uranium.on('init', function()
   loadedSavedata = true
   if savedataName then
     self.load()
   end
-end
+end)
 
 function self.enableAutosave()
   checkIfInitialized()
-  function uranium.exit()
+  uranium.on('exit', function()
     self.save(true)
-  end
+  end)
 end
 
 return self

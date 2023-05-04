@@ -40,7 +40,7 @@ function self:unscheduleInTicks(i)
   scheduledTicks[i] = nil
 end
 
-function uranium.update(dt)
+uranium.on('update', function(dt)
   for k, s in pairs(scheduledTicks) do
     s[1] = s[1] - 1
     if s[1] <= 0 then
@@ -56,6 +56,6 @@ function uranium.update(dt)
       scheduled[k] = nil
     end
   end
-end
+end)
 
 return self
