@@ -1,7 +1,6 @@
 <Layer Type="ActorFrame" InitCommand="%function(self)
   _G.oat = {}
   oat._main = self
-  oat.dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
   setmetatable(oat, {
     -- if something isn't found in the table, fall back to a global lookup
@@ -13,6 +12,9 @@
       return f
     end
   })
+
+  uranium = {}
+  uranium.dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
   -- make require work
   -- stolen from mirin template
@@ -33,7 +35,7 @@
         local filename = string.gsub(modname, '%.', '/')
         for path in (string.gfind or string.gmatch)(oat.package.path, '[^;]+') do
           -- get the file path
-          local filepath = oat.dir .. string.gsub(path, '%?', filename)
+          local filepath = uranium.dir .. string.gsub(path, '%?', filename)
           -- check if file exists
           if not GAMESTATE:GetFileStructure(filepath) then
             table.insert(errors, 'no file \''..filepath..'\'')

@@ -1,7 +1,7 @@
 local M = {}
 
-oat._actorsInitialized = false -- if true, no new actors can be created
-oat._actorsInitializing = false -- the above but a bit more explicit
+M._actorsInitialized = false -- if true, no new actors can be created
+M._actorsInitializing = false -- the above but a bit more explicit
 
 local drawfunctionArguments = {}
 local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
@@ -88,13 +88,13 @@ function oat._patchFunction(f, obj)
   return patchedFunctions[f][obj]
 end
 
-oat._globalQueue = {} -- for resetting
+M._globalQueue = {} -- for resetting
 
 ---@param actor Actor
 --- Resets an actor to its initial state
 function reset(actor)
-  if not oat._actorsInitialized then error('uranium: cannot reset an actor during initialization', 2) end
-  for _, q in ipairs(oat._globalQueue) do
+  if not M._actorsInitialized then error('uranium: cannot reset an actor during initialization', 2) end
+  for _, q in ipairs(M._globalQueue) do
     local queueActor = q[1]
     if queueActor == actor.__raw then
       local v = q[2]
@@ -110,13 +110,13 @@ function reset(actor)
 end
 resetActor = reset
 
-oat._actorQueue = {}
-oat._actorAssociationQueue = {}
+M._actorQueue = {}
+M._actorAssociationQueue = {}
 
-oat._actorTree = {}
-oat._currentPath = nil
-oat._pastPaths = {}
-oat._currentActor = nil
+M._actorTree = {}
+M._currentPath = nil
+M._pastPaths = {}
+M._currentActor = nil
 
 local function findFirstActor(path)
   for i, v in ipairs(path) do
@@ -137,25 +137,25 @@ end
 oat._actor = {}
 
 local function nextActor()
-  local new, idx = findFirstActor(oat._currentPath)
+  local new, idx = findFirstActor(M._currentPath)
   if not new then
-    oat._currentActor = nil
+    M._currentActor = nil
   else
-    oat._currentActor = new
-    table.remove(oat._currentPath, idx)
+    M._currentActor = new
+    table.remove(M._currentPath, idx)
   end
 end
 
 function oat._actor.recurse(forceActor)
-  local newFrame, idx = findFirstActorFrame(oat._currentPath)
-  local newActor = findFirstActor(oat._currentPath)
+  local newFrame, idx = findFirstActorFrame(M._currentPath)
+  local newActor = findFirstActor(M._currentPath)
   if newFrame and not (newActor and forceActor) then
-    table.insert(oat._pastPaths, oat._currentPath)
-    oat._currentPath = oat._currentPath[idx]
-    table.remove(oat._pastPaths[#oat._pastPaths], idx)
+    table.insert(M._pastPaths, M._currentPath)
+    M._currentPath = M._currentPath[idx]
+    table.remove(M._pastPaths[#M._pastPaths], idx)
     return true
   elseif newActor then
-    table.insert(oat._pastPaths, oat._currentPath)
+    table.insert(M._pastPaths, M._currentPath)
     return true
   else
     return false
@@ -167,15 +167,15 @@ function oat._actor.recurseLast()
 end
 
 function oat._actor.endRecurse()
-  oat._currentPath = table.remove(oat._pastPaths, #oat._pastPaths)
+  M._currentPath = table.remove(M._pastPaths, #M._pastPaths)
 end
 
 function oat._actor.cond()
-  return oat._currentActor ~= nil
+  return M._currentActor ~= nil
 end
 
 function oat._actor.hasShader()
-  return oat._actor.cond() and (oat._currentActor.frag ~= nil or oat._currentActor.vert ~= nil)
+  return oat._actor.cond() and (M._currentActor.frag ~= nil or M._currentActor.vert ~= nil)
 end
 
 function oat._actor.noShader()
@@ -184,29 +184,29 @@ function oat._actor.noShader()
 end
 
 function oat._actor.type()
-  return oat._currentActor.type
+  return M._currentActor.type
 end
 
 function oat._actor.file()
-  return oat._currentActor.file
+  return M._currentActor.file
 end
 
 function oat._actor.frag()
-  return oat._currentActor.frag or 'nop.frag'
+  return M._currentActor.frag or 'nop.frag'
 end
 
 function oat._actor.vert()
-  return oat._currentActor.vert or 'nop.vert'
+  return M._currentActor.vert or 'nop.vert'
 end
 
 function oat._actor.font()
-  return oat._currentActor.font
+  return M._currentActor.font
 end
 
 function oat._actor.init(self)
-  oat._currentActor.init(self)
+  M._currentActor.init(self)
   self:removecommand('Init')
-  oat._currentActor = nil -- to prevent any weirdness
+  M._currentActor = nil -- to prevent any weirdness
 end
 
 function oat._actor.initFrame(self)
@@ -220,9 +220,9 @@ function oat._actor.initFrame(self)
     end
   end)
 
-  if oat._currentPath.init then
-    oat._currentPath.init(self)
-    oat._currentPath.init = nil
+  if M._currentPath.init then
+    M._currentPath.init(self)
+    M._currentPath.init = nil
     specialActorFrames[self] = true
   else
     specialActorFrames[self] = false
@@ -291,7 +291,7 @@ local function createProxyActor(name)
           end
           -- now that we know there's no poisonous methods in queue, let's offload them
           for _, v in ipairs(queue) do
-            table.insert(oat._globalQueue, {actor, v})
+            table.insert(M._globalQueue, {actor, v})
           end
           -- let's also properly route everything from the proxied actor to the actual actor
           lockedActor = actor
@@ -315,7 +315,7 @@ local function createProxyActor(name)
         end
       else
         return function(...)
-          if oat._actorsInitialized then return end
+          if M._actorsInitialized then return end
           if key == 'addcommand' and arg[2] == 'Init' then
             table.insert(initCommands, {arg[3], debug.getinfo(2, 'Sl')})
           else
@@ -334,16 +334,16 @@ end
 
 local function createGenericFunc(type)
   return function()
-    if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-    if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+    if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+    if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
     local actor = createProxyActor(type)
-    table.insert(oat._actorQueue, {
+    table.insert(M._actorQueue, {
       type = type,
       init = function(a)
         actor.__lock(a)
       end
     })
-    actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+    actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
     return actor
   end
 end
@@ -365,20 +365,20 @@ ActorFrameTexture = createGenericFunc('ActorFrameTexture')
 ---@return Sprite
 --- Defines a Sprite actor.
 function Sprite(file)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   --if not file then error('uranium: cannot create a Sprite without a file', 2) end
   local actor = createProxyActor('Sprite')
   local type = nil
   if not file then type = 'Sprite' end
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = type,
-    file = file and oat.dir .. file,
+    file = file and uranium.dir .. file,
     init = function(a)
       actor.__lock(a)
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -386,16 +386,16 @@ end
 ---@see addChild
 --- Defines an ActorFrame. Add children to it with `addChild`.
 function ActorFrame()
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   local actor = createProxyActor('ActorFrame')
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = 'ActorFrame',
     init = function(a)
       actor.__lock(a)
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   oat._actorAssociationTable[actor] = {}
   return actor
 end
@@ -409,8 +409,8 @@ end
 ---@return RageShaderProgram
 --- Defines a shader. `frag` and `vert` can either be filenames or shader code.
 function Shader(frag, vert)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   local actor = createProxyActor('RageShaderProgram')
 
   local fragFile = frag
@@ -426,7 +426,7 @@ function Shader(frag, vert)
     error('uranium: cannot create a shader with 1 shader file and 1 shader code block', 2)
   end
 
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = 'Sprite',
     frag = fragFile and ('../' .. fragFile) or 'nop.frag',
     vert = vertFile and ('../' .. vertFile) or 'nop.vert',
@@ -440,7 +440,7 @@ function Shader(frag, vert)
       end
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -448,19 +448,19 @@ end
 ---@return RageTexture
 --- Defines a texture.
 function Texture(file)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   if not file then error('uranium: cannot create a texture without a file', 2) end
   local actor = createProxyActor('RageTexture')
 
-  table.insert(oat._actorQueue, {
-    file = file and oat.dir .. file,
+  table.insert(M._actorQueue, {
+    file = file and uranium.dir .. file,
     init = function(a)
       a:hidden(1)
       actor.__lock(a:GetTexture())
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -468,18 +468,18 @@ end
 ---@return Model
 --- Defines a Model actor.
 function Model(file)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   if not file then error('uranium: cannot create a Model without a file', 2) end
   local actor = createProxyActor('Model')
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = nil,
-    file = file and oat.dir .. file,
+    file = file and uranium.dir .. file,
     init = function(a)
       actor.__lock(a)
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -488,10 +488,10 @@ end
 ---@return BitmapText
 --- Defines a BitmapText actor.
 function BitmapText(font, text)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   local actor = createProxyActor('BitmapText')
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = 'BitmapText',
     font = font or 'common',
     init = function(a)
@@ -499,7 +499,7 @@ function BitmapText(font, text)
       actor.__lock(a)
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -507,18 +507,18 @@ end
 ---@return ActorSound
 --- Defines an ActorSound actor.
 function ActorSound(file)
-  if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
-  if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
+  if M._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
+  if M._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
   if not file then error('uranium: cannot create an ActorSound without a file', 2) end
   local actor = createProxyActor('ActorSound')
-  table.insert(oat._actorQueue, {
+  table.insert(M._actorQueue, {
     type = 'ActorSound',
-    file = oat.dir .. file,
+    file = uranium.dir .. file,
     init = function(a)
       actor.__lock(a)
     end
   })
-  actor.__queueRepresentation(oat._actorQueue[#oat._actorQueue])
+  actor.__queueRepresentation(M._actorQueue[#M._actorQueue])
   return actor
 end
 
@@ -529,10 +529,10 @@ function addChild(frame, actor)
   if not frame or not actor then
     error('uranium: frame and actor must both Exist', 2)
   end
-  if oat._actorsInitializing then
+  if M._actorsInitializing then
     error('uranium: cannot create frame-child associations during actor initialization', 2)
   end
-  if oat._actorsInitialized then
+  if M._actorsInitialized then
     error('uranium: cannot create frame-child associations after actors have been initialized', 2)
   end
   if not frame.__lock then
@@ -541,40 +541,42 @@ function addChild(frame, actor)
   if not actor.__lock then
     error('uranium: trying to add a child to an ActorFrame that isn\'t an actor; please read the first half of \'ActorFrame\'', 2)
   end
-  oat._actorAssociationQueue[actor.__queue] = frame.__queue
+  M._actorAssociationQueue[actor.__queue] = frame.__queue
   table.insert(oat._actorAssociationTable[frame], actor)
 end
 
-function oat._transformQueueToTree()
+function M._transformQueueToTree()
   local tree = {}
   local paths = {}
   local iter = 0
-  while #oat._actorQueue > 0 do
+  while #M._actorQueue > 0 do
     iter = iter + 1
     if iter > 99999 then
       error('uranium: failed to transform queue to tree: reached maximum iteration limit! is there an actor with an invalid actorframe?')
     end
-    for i = #oat._actorQueue, 1, -1 do
-      v = oat._actorQueue[i]
+    for i = #M._actorQueue, 1, -1 do
+      v = M._actorQueue[i]
       local insertInto
-      if not oat._actorAssociationQueue[v] then
+      if not M._actorAssociationQueue[v] then
         insertInto = tree
       else
-        if paths[oat._actorAssociationQueue[v]] then
-          insertInto = paths[oat._actorAssociationQueue[v]]
+        if paths[M._actorAssociationQueue[v]] then
+          insertInto = paths[M._actorAssociationQueue[v]]
         end
       end
       if insertInto then
         if v.type == 'ActorFrame' then
           table.insert(insertInto, {init = v.init})
-          table.remove(oat._actorQueue, i)
+          table.remove(M._actorQueue, i)
           paths[v] = insertInto[#insertInto]
         else
           table.insert(insertInto, v)
-          table.remove(oat._actorQueue, i)
+          table.remove(M._actorQueue, i)
         end
       end
     end
   end
-  oat._actorTree = tree
+  M._actorTree = tree
 end
+
+return M

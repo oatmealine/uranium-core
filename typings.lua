@@ -1,7 +1,7 @@
 ---@meta
 
 -- cleaning up some notitg typing jank... ehe
----@alias int number
+---@alias int integer
 ---@alias float number
 ---@alias Quad Actor
 ---@alias void nil
@@ -53,3 +53,9 @@ dh = 0
 
 --- Equivalent to a modfile-sandboxed `_G`, similar to Mirin's `xero`. You shouldn't need this; and if you do, *what are you doing?*
 oat = _G
+
+--- The Uranium Template table! All template-related functionality is stored here.
+uranium = {}
+---@type string
+--- A shorthand for `GAMESTATE:GetCurrentSong():GetSongDir()`.
+uranium.dir = nil

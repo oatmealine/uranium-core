@@ -28,9 +28,6 @@ dh = DISPLAY:GetDisplayHeight()
 local resetOnFrameStartCfg = false
 local resetOnFrameStartActors = {}
 
---- The Uranium Template table! All template-related functionality is stored here.
-uranium = {}
-
 require 'uranium.events'
 
 local hasExited = false
@@ -41,6 +38,7 @@ local function exit()
   -- good templates clean up after themselves
   uranium = nil
   _G.oat = nil
+  ---@diagnostic disable-next-line: assign-type-mismatch
   oat = nil
   _main:hidden(1)
   collectgarbage()
@@ -60,8 +58,8 @@ end
 local luaobj
 
 local function onCommand(self)
-  oat._actorsInitialized = true
-  oat._actorsInitializing = false
+  uranium.actors._actorsInitialized = true
+  uranium.actors._actorsInitializing = false
   local resetOnFrameStartActors_ = {}
   for k,v in pairs(resetOnFrameStartActors) do
     resetOnFrameStartActors_[k.__raw] = v
@@ -104,21 +102,22 @@ function resetActorOnFrameStart(actor, bool)
   resetOnFrameStartActors[actor.__raw or actor] = bool
 end
 
-require 'uranium.actors'
+uranium.actors = require 'uranium.actors'
 
 local lastt = GAMESTATE:GetSongTime()
 local function screenReadyCommand(self)
   hideThemeActors()
   self:hidden(0)
-  oat._actor = {}
 
-  oat._actorQueue = {}
-  oat._actorAssociationQueue = {}
+  oat._actor = nil
 
-  oat._actorTree = {}
-  oat._currentPath = nil
-  oat._pastPaths = {}
-  oat._currentActor = nil
+  uranium.actors._actorQueue = nil
+  uranium.actors._actorAssociationQueue = nil
+
+  uranium.actors._actorTree = nil
+  uranium.actors._currentPath = nil
+  uranium.actors._pastPaths = nil
+  uranium.actors._currentActor = nil
 
   collectgarbage()
 
@@ -131,6 +130,7 @@ local function screenReadyCommand(self)
     end
     errored = true
 
+    local P1, P2 = SCREENMAN('PlayerP1'), SCREENMAN('PlayerP2')
     if P1 and P2 then
       playersLoaded = true
     end
@@ -152,7 +152,7 @@ local function screenReadyCommand(self)
 
     drawfunctionArguments = {}
 
-    for _, q in ipairs(oat._globalQueue) do
+    for _, q in ipairs(uranium.actors._globalQueue) do
       local enabled = resetOnFrameStartCfg
 
       local actor = q[1]
@@ -182,12 +182,23 @@ local function screenReadyCommand(self)
   self:luaeffect('Update')
 end
 
-if not pcall(function() oat._release = require('uranium.release') end) then
-  oat._release = require('uranium.release_blank')
+---@class UraniumRelease
+---@field branch string
+---@field commit string
+---@field version string
+---@field name string
+---@field prettyName string
+---@field homeURL string
+
+---@type UraniumRelease
+uranium.release = {}
+
+if not pcall(function() uranium.release = require('uranium.release') end) then
+  uranium.release = require('uranium.release_blank')
 end
 
 local success, result = pcall(function()
-  require('main')
+  return require('main')
 end)
 
 if success then
@@ -195,10 +206,10 @@ if success then
 
   print('---')
 
-  oat._actorsInitializing = true
-  oat._transformQueueToTree()
-  --Trace(fullDump(oat._actorTree))
-  oat._currentPath = oat._actorTree
+  uranium.actors._actorsInitializing = true
+  uranium.actors._transformQueueToTree()
+  --Trace(fullDump(uranium.actors._actorTree))
+  uranium.actors._currentPath = uranium.actors._actorTree
 
   _main:addcommand('On', onCommand)
   _main:addcommand('Ready', screenReadyCommand)
