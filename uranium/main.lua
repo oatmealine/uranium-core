@@ -1,34 +1,9 @@
-local function copy(src)
-  local dest = {}
-  for k, v in pairs(src) do
-    dest[k] = v
-  end
-  return dest
-end
-
-oat = _G.oat
-type = _G.type
-print = _G.print
-pairs = _G.pairs
-ipairs = _G.ipairs
-unpack = _G.unpack
-tonumber = _G.tonumber
-tostring = _G.tostring
-math = copy(_G.math)
-table = copy(_G.table)
-string = copy(_G.string)
-
-scx = SCREEN_CENTER_X
-scy = SCREEN_CENTER_Y
-sw = SCREEN_WIDTH
-sh = SCREEN_HEIGHT
-dw = DISPLAY:GetDisplayWidth()
-dh = DISPLAY:GetDisplayHeight()
+require 'uranium.constants'
+require 'uranium.events'
+local actors = require 'uranium.actors'
 
 local resetOnFrameStartCfg = false
 local resetOnFrameStartActors = {}
-
-require 'uranium.events'
 
 local hasExited = false
 local function exit()
@@ -56,8 +31,8 @@ function backToSongWheel(message)
 end
 
 local function onCommand(self)
-  uranium.actors._actorsInitialized = true
-  uranium.actors._actorsInitializing = false
+  actors._actorsInitialized = true
+  actors._actorsInitializing = false
   local resetOnFrameStartActors_ = {}
   for k,v in pairs(resetOnFrameStartActors) do
     resetOnFrameStartActors_[k.__raw] = v
@@ -100,22 +75,12 @@ function resetActorOnFrameStart(actor, bool)
   resetOnFrameStartActors[actor.__raw or actor] = bool
 end
 
-uranium.actors = require 'uranium.actors'
-
 local lastt = GAMESTATE:GetSongTime()
 local function screenReadyCommand(self)
+  actors.finalize()
+
   hideThemeActors()
   self:hidden(0)
-
-  oat._actor = nil
-
-  uranium.actors._actorQueue = nil
-  uranium.actors._actorAssociationQueue = nil
-
-  uranium.actors._actorTree = nil
-  uranium.actors._currentPath = nil
-  uranium.actors._pastPaths = nil
-  uranium.actors._currentActor = nil
 
   collectgarbage()
 
@@ -150,7 +115,7 @@ local function screenReadyCommand(self)
 
     drawfunctionArguments = {}
 
-    for _, q in ipairs(uranium.actors._globalQueue) do
+    for _, q in ipairs(actors._globalQueue) do
       local enabled = resetOnFrameStartCfg
 
       local actor = q[1]
@@ -202,10 +167,7 @@ end)
 if success then
   print('---')
 
-  uranium.actors._actorsInitializing = true
-  uranium.actors._transformQueueToTree()
-  --Trace(fullDump(uranium.actors._actorTree))
-  uranium.actors._currentPath = uranium.actors._actorTree
+  actors.prepareForActors()
 
   _main:addcommand('On', onCommand)
   _main:addcommand('Ready', screenReadyCommand)

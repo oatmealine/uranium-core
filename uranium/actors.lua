@@ -579,4 +579,23 @@ function M._transformQueueToTree()
   M._actorTree = tree
 end
 
+function M.prepareForActors()
+  M._actorsInitializing = true
+  M._transformQueueToTree()
+  --Trace(fullDump(M._actorTree))
+  M._currentPath = M._actorTree
+end
+
+function M.finalize()
+  oat._actor = nil
+
+  M._actorQueue = nil
+  M._actorAssociationQueue = nil
+
+  M._actorTree = nil
+  M._currentPath = nil
+  M._pastPaths = nil
+  M._currentActor = nil
+end
+
 return M

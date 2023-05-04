@@ -83,6 +83,9 @@
 
   require 'uranium.main'
 
+  -- Needed by StepMania, in order to not kill lua mods early
+  self:sleep(9e9)
+
   -- NotITG and OpenITG have a long standing bug where the InitCommand on an actor can run twice in certain cases.
   -- By removing the command after it's done, it can only ever run once
   self:removecommand('Init')
