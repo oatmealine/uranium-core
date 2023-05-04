@@ -1,9 +1,14 @@
+local M = {}
+
 oat._actorsInitialized = false -- if true, no new actors can be created
 oat._actorsInitializing = false -- the above but a bit more explicit
 
 local drawfunctionArguments = {}
 local specialActorFrames = {} -- ones defined specifically; here for drawfunction jank
 
+---@param frame ActorFrame
+---@param func function
+--- SetDrawFunction with special behavior to account for Uranium's actor loading scheme.
 function setDrawFunction(frame, func)
   --if not frame.__raw then error('uranium: cannot set actorframe drawfunction during module loadtime! put this in uranium.init or actor:addcommand(\'Init\', ...)', 2) end
   if not frame.SetDrawFunction then error('uranium: expected an actorframe but got something that doesn\'t even bother to implement SetDrawFunction', 2) end
@@ -24,6 +29,8 @@ function setDrawFunction(frame, func)
   end)
 end
 
+---@param actor Actor
+---@param shader RageShaderProgram
 function setShader(actor, shader)
   if not shader.__raw then
     uranium.on('init', function() setShader(actor, shader) end)
@@ -46,6 +53,9 @@ end
 
 oat._actorAssociationTable = {}
 
+-- Gets every child of an ActorFrame. More accurate than :GetChildren()
+---@param frame ActorFrame
+---@return Actor[]
 function getChildren(frame)
   local c = oat._actorAssociationTable[frame]
   if c then
@@ -80,6 +90,8 @@ end
 
 oat._globalQueue = {} -- for resetting
 
+---@param actor Actor
+--- Resets an actor to its initial state
 function reset(actor)
   if not oat._actorsInitialized then error('uranium: cannot reset an actor during initialization', 2) end
   for _, q in ipairs(oat._globalQueue) do
@@ -224,6 +236,7 @@ local actorMethodOverrides = {
   end
 }
 
+-- todo: probably make this more sane
 local function createProxyActor(name)
   local queue = {}
   local initCommands = {}
@@ -335,11 +348,22 @@ local function createGenericFunc(type)
   end
 end
 
+---@return Quad
+--- Defines a Quad actor.
 Quad = createGenericFunc('Quad')
+---@return ActorProxy
+--- Defines an ActorProxy actor.
 ActorProxy = createGenericFunc('ActorProxy')
+---@return Polygon
+--- Defines a Polygon actor.
 Polygon = createGenericFunc('Polygon')
+---@return ActorFrameTexture
+--- Defines an ActorFrameTexture actor.
 ActorFrameTexture = createGenericFunc('ActorFrameTexture')
 
+---@param file string | nil
+---@return Sprite
+--- Defines a Sprite actor.
 function Sprite(file)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -358,6 +382,9 @@ function Sprite(file)
   return actor
 end
 
+---@return ActorFrame
+---@see addChild
+--- Defines an ActorFrame. Add children to it with `addChild`.
 function ActorFrame()
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -377,6 +404,10 @@ local function isShaderCode(str)
   return string.find(str or '', '\n')
 end
 
+---@param frag string | nil
+---@param vert string | nil
+---@return RageShaderProgram
+--- Defines a shader. `frag` and `vert` can either be filenames or shader code.
 function Shader(frag, vert)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -413,6 +444,9 @@ function Shader(frag, vert)
   return actor
 end
 
+---@param file string
+---@return RageTexture
+--- Defines a texture.
 function Texture(file)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -430,6 +464,9 @@ function Texture(file)
   return actor
 end
 
+---@param file string
+---@return Model
+--- Defines a Model actor.
 function Model(file)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -446,6 +483,10 @@ function Model(file)
   return actor
 end
 
+---@param font string?
+---@param text string?
+---@return BitmapText
+--- Defines a BitmapText actor.
 function BitmapText(font, text)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -462,6 +503,9 @@ function BitmapText(font, text)
   return actor
 end
 
+---@param file string
+---@return ActorSound
+--- Defines an ActorSound actor.
 function ActorSound(file)
   if oat._actorsInitializing then error('uranium: cannot create an actor during actor initialization!!', 2) end
   if oat._actorsInitialized then error('uranium: cannot create an actor during runtime!!', 2) end
@@ -478,6 +522,9 @@ function ActorSound(file)
   return actor
 end
 
+---@param frame ActorFrame
+---@param actor Actor
+--- Adds a child to an ActorFrame. **Please be aware of the side-effects!**
 function addChild(frame, actor)
   if not frame or not actor then
     error('uranium: frame and actor must both Exist', 2)

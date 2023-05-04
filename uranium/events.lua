@@ -1,4 +1,10 @@
 useProfiler = false
+
+---@class ProfilerInfo
+---@field public t number
+---@field public src string
+
+---@type table<string, ProfilerInfo>
 profilerInfo = {}
 
 local callbacks = {}

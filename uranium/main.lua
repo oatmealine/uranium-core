@@ -90,10 +90,15 @@ end
 
 GAMESTATE:ApplyModifiers('clearall')
 
+-- Toggle actor resetting on frame start behavior by default.
+---@param bool boolean
 function resetOnFrameStart(bool)
   resetOnFrameStartCfg = bool
 end
 
+-- Toggle actor resetting on frame start for individual actors. `bool` defaults to the opposite of your `resetOnFrameStart` config
+---@param actor Actor
+---@param bool boolean | nil
 function resetActorOnFrameStart(actor, bool)
   if bool == nil then bool = not resetOnFrameStartCfg end
   resetOnFrameStartActors[actor.__raw or actor] = bool
