@@ -1,72 +1,42 @@
-require('stdlib.util')
-
 ---@class easable
----@field public a number @the eased value
----@field public toa number @the target, uneased value
-local eas = {}
+---@field eased number | any
+---@field target number | any
+---@field speed number
+local easable = {}
 
----@param new number @New value to ease to
----@return void
-function eas:set(new)
-  self.toa = new
-end
-
----@param new number @New value
----@return void
-function eas:reset(new)
-  self.toa = new
-  self.a = new
+--- move towards a new target
+function easable:set(n)
+  self.target = n
 end
 
----@param new number @How much to add to current value to ease to
----@return void
-function eas:add(new)
-  self.toa = self.toa + new
+--- move towards a new target additively
+function easable:add(n)
+  self.target = self.target + n
 end
 
-local easmeta = {}
-
-easmeta.__index = eas
-easmeta.__name = 'easable'
-
-function easmeta.__add(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) + ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__sub(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) - ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__mul(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) * ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__div(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) / ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__mod(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) % ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__eq(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) == ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__lt(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) < ((type(b) == 'table' and b.a) and b.a or b)
-end
-function easmeta.__le(a, b)
-  return ((type(a) == 'table' and a.a) and a.a or a) <= ((type(b) == 'table' and b.a) and b.a or b)
+--- set both the eased value and the target
+function easable:reset(n)
+  self.target = n
+  self.eased = n
 end
 
-function easmeta:__call(dt)
-  self.a = mix(self.a, self.toa, dt)
-end
-function easmeta:__tostring()
-  return tostring(self.a)
-end
-function easmeta:__unm(self)
-  return -self.a
+---@param dt number
+function easable:update(dt)
+  self.eased = math.pow(self.speed, -dt) * (self.eased - self.target) + self.target
 end
 
----@param default number
+function easable:__tostring()
+  return 'easable (' .. self.eased .. ' towards ' .. self.target .. ')'
+end
+
+easable.__index = easable
+easable.__name = 'easable'
+
 ---@return easable
-return function(default)
-  default = default or 0
-  return setmetatable({a = default, toa = default}, easmeta)
+return function(default, speed)
+  return setmetatable({
+    eased = default,
+    target = default,
+    speed = speed and math.pow(2, speed) or 2
+  }, easable)
 end
