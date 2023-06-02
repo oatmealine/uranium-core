@@ -114,12 +114,12 @@ uranium.on('init', function()
 
       _main:addcommand('StepP' .. pn .. j .. 'PressMessage', function()
         self.rawInputs[pn][v] = t
-        if uranium:call('press', v, pn) then return end
+        if uranium.call('press', v, pn) then return end
         self.inputs[pn][v] = t
       end)
       _main:addcommand('StepP' .. pn .. j .. 'LiftMessage', function()
         self.rawInputs[pn][v] = -1
-        if uranium:call('release', v, pn) then return end
+        if uranium.call('release', v, pn) then return end
         self.inputs[pn][v] = -1
       end)
     end
